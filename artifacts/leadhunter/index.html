@@ -110,6 +110,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .fsel{background:var(--s2);border:1px solid var(--b);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;padding:6px 9px;border-radius:var(--r);outline:none;cursor:pointer;appearance:none;letter-spacing:.5px;}
 .exp-btn{margin-left:auto;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;position:relative;z-index:1;}
 .exp-btn:hover{background:rgba(200,245,66,.08)}
+.tool-btn{background:transparent;border:1px solid var(--b2);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;border-radius:var(--r);cursor:pointer;transition:all .15s;position:relative;z-index:1;}
+.tool-btn:hover{border-color:var(--acc3);color:var(--acc3);background:rgba(66,217,245,.06)}
 .leads-wrap{flex:1;overflow:auto;}
 .leads-wrap::-webkit-scrollbar{width:4px;height:4px}.leads-wrap::-webkit-scrollbar-thumb{background:var(--b2)}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -119,6 +121,7 @@ th{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;tex
 th:hover{color:var(--sub)}
 td{padding:9px 14px;border-bottom:1px solid rgba(37,37,51,.6);vertical-align:top;}
 tr:hover td{background:rgba(255,255,255,.015)}
+tr.lead-row{cursor:pointer}
 .biz-name{font-weight:600;color:var(--text);font-size:13px;line-height:1.2}
 .biz-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;}
 .biz-chain{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--red);margin-top:2px;}
@@ -149,6 +152,26 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .note-inp{width:100%;background:transparent;border:none;border-bottom:1px solid var(--b);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 0;outline:none;margin-top:4px;}
 .note-inp:focus{border-bottom-color:var(--acc);color:var(--text)}
 .note-inp::placeholder{color:var(--dim)}
+
+.outreach-panel{position:fixed;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));max-height:calc(100vh - 88px);overflow:auto;background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);box-shadow:0 18px 70px rgba(0,0,0,.45);z-index:200;display:none;}
+.outreach-panel.open{display:block;animation:fi .16s ease}
+.outreach-head{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b);background:var(--s2)}
+.outreach-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text)}
+.outreach-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.close-btn{background:transparent;border:1px solid var(--b2);color:var(--sub);border-radius:var(--r);width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1}
+.close-btn:hover{border-color:var(--red);color:var(--red)}
+.outreach-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.msg-block{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:12px}
+.msg-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.msg-text{font-size:12px;color:var(--text);line-height:1.55;white-space:pre-wrap}
+.msg-textarea{min-height:86px;font-family:'Instrument Sans',sans-serif;font-size:12px;color:var(--text)}
+.wa-actions{display:flex;gap:8px;flex-wrap:wrap}
+.wa-btn{flex:1;background:#25d366;color:#06170b;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.8px;padding:10px 12px;cursor:pointer;text-decoration:none;text-align:center}
+.wa-btn:hover{background:#35e276}
+.wa-btn.disabled{background:var(--s3);color:var(--dim);pointer-events:none}
+.copy-msg-btn{background:transparent;border:1px solid var(--acc3);color:var(--acc3);border-radius:var(--r);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:10px 12px;cursor:pointer}
+.phone-row{display:flex;gap:8px}
+.phone-row input{flex:1}
 
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);gap:10px;}
 .empty-icon{font-size:40px;opacity:.25}.empty-text{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
@@ -399,6 +422,9 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <option value="reviews">Sort: Reviews</option>
         <option value="rating">Sort: Rating</option>
       </select>
+      <button class="tool-btn" onclick="document.getElementById('csv-import').click()">Import CSV</button>
+      <input id="csv-import" type="file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)">
+      <button class="tool-btn" onclick="clearSavedSession()">Clear Saved</button>
       <button class="exp-btn" onclick="exportCSV()">&#8595; Export CSV</button>
     </div>
     <div class="leads-wrap" id="leads-wrap">
@@ -477,6 +503,33 @@ if __name__ == '__main__':
 </div>
 </div>
 
+<div class="outreach-panel" id="outreach-panel" aria-live="polite">
+  <div class="outreach-head">
+    <div>
+      <div class="outreach-title" id="outreach-name">Lead</div>
+      <div class="outreach-meta" id="outreach-meta">Click a lead to generate outreach</div>
+    </div>
+    <button class="close-btn" onclick="closeOutreach()" aria-label="Close outreach panel">&times;</button>
+  </div>
+  <div class="outreach-body">
+    <div class="phone-row">
+      <input id="outreach-phone" type="text" placeholder="WhatsApp number, e.g. +919876543210" oninput="updateSelectedLeadPhone(this.value)">
+      <button class="copy-msg-btn" onclick="copyMessage()">Copy</button>
+    </div>
+    <div class="msg-block">
+      <div class="msg-label">Message 1</div>
+      <textarea id="outreach-message" class="msg-textarea" oninput="updateWhatsAppLink()"></textarea>
+    </div>
+    <div class="wa-actions">
+      <a class="wa-btn disabled" id="wa-link" href="#" target="_blank" rel="noopener">Open in WhatsApp</a>
+    </div>
+    <div class="msg-block">
+      <div class="msg-label">If they reply</div>
+      <div class="msg-text" id="followup-message"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 let leads = [];
 let running = false;
@@ -485,8 +538,40 @@ let seen = new Set();
 let chainCount = 0;
 let backendUrl = '';
 let backendOk = false;
+let selectedLeadKey = '';
+const SESSION_KEY = 'leadhunter-v2-session';
+let saveTimer = null;
 
 const crmState = {};
+
+function leadKey(lead) {
+  return [lead.name, lead.area, lead.category].map(v => String(v || '').toLowerCase().trim()).join('|');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#96;');
+}
+
+function normalizePhone(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  let digits = raw.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) digits = digits.slice(1);
+  digits = digits.replace(/\D/g, '');
+  if (digits.length === 10) return '91' + digits;
+  if (digits.length > 10 && digits.startsWith('0')) digits = digits.replace(/^0+/, '');
+  return digits;
+}
+
+function csvCell(value) {
+  return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+}
 
 const CHAINS = [
   'naturals','ccd','cafe coffee day','saravana stores','saravana bhavan',
@@ -624,26 +709,34 @@ function scoreLeadV2(biz) {
 }
 
 function buildPitchAngle(biz, intel, wtp, opp, flags) {
-  const price   = document.getElementById('price-tier').value;
-  const priceStr = price === 'budget' ? '₹8,000–₹15,000' : price === 'mid' ? '₹15,000–₹35,000' : '₹40,000+';
+  return buildFirstMessage(biz);
+}
 
-  let base = intel.pitch;
-
-  if (PREMIUM_AREAS.some(a => biz.area.toLowerCase().includes(a))) {
-    base += ' In ' + biz.area + ', your clients expect a professional web presence — it\'s a trust signal before they even call.';
+function getObservation(biz) {
+  if (!biz.hasWebsite) {
+    return 'noticed you do not seem to have a website showing up, while customers in ' + biz.area + ' are likely comparing options online.';
   }
-
-  if (flags.includes('no-website')) {
-    base += ' Right now, anyone searching "' + biz.category + ' in ' + biz.area + '" won\'t find you on Google. That\'s your competitor getting that call.';
+  if ((biz.reviews || 0) >= 80) {
+    return 'noticed you already have strong reviews, so people are clearly checking you out before deciding.';
   }
-
-  if (flags.includes('established')) {
-    base += ' With ' + biz.reviews + '+ reviews, you\'ve clearly built something strong — a website makes sure that reputation works harder for you online.';
+  if ((biz.rating || 0) >= 4.5) {
+    return 'noticed the rating is solid, which is a strong trust signal for new customers.';
   }
+  return 'noticed you show up for ' + biz.category + ' in ' + biz.area + ', but the first impression could be sharper.';
+}
 
-  base += ' Starting at ' + priceStr + ' — pays back in 1–2 new clients.';
+function buildFirstMessage(biz) {
+  const name = biz.name || 'your business';
+  const observation = getObservation(biz);
+  return 'Hi ' + name + ', quick one - I ' + observation + '\n\n' +
+    'Would it be useful if I sent over one simple idea to make more people choose you first?';
+}
 
-  return base;
+function buildReplyFollowup(biz) {
+  const name = biz.name || 'your business';
+  return 'Nice. For ' + name + ', the value would be a simple trust page: photos, reviews, location, services, and a WhatsApp button so people can contact you fast.\n\n' +
+    'I can make a free trial version first, no pressure. If it looks useful, we keep it and make it live.\n\n' +
+    'Want me to mock one up for ' + name + '?';
 }
 
 async function fetchLeads(query) {
@@ -732,7 +825,9 @@ async function startScrape() {
   if (!areas.length) { log('Pick at least one area!','w'); return; }
   if (!cats.length)  { log('Pick at least one category!','w'); return; }
 
-  running=true; stopped=false; leads=[]; seen.clear(); chainCount=0;
+  running=true; stopped=false; leads=[]; seen.clear(); chainCount=0; selectedLeadKey='';
+  Object.keys(crmState).forEach(k => delete crmState[k]);
+  closeOutreach();
   document.getElementById('run-btn').disabled=true;
   document.getElementById('stop-btn').style.display='block';
   document.getElementById('log-area').innerHTML='';
@@ -804,6 +899,7 @@ async function startScrape() {
       sortLeads();
       updateStats();
       renderLeads();
+      saveSession();
 
       done++;
       if (delay > 0 && !stopped) await sleep(delay);
@@ -825,6 +921,7 @@ async function startScrape() {
     log('Stopped — ' + leads.length + ' leads captured', 'w');
   }
   renderLeads();
+  saveSession();
 }
 
 function stopScrape() { stopped=true; running=false; }
@@ -853,7 +950,7 @@ function renderLeads() {
     if (fTier && l.tier !== fTier) return false;
     if (fWeb==='no' && l.hasWebsite) return false;
     if (fWeb==='yes' && !l.hasWebsite) return false;
-    const crm = (crmState[l.name]?.status)||'new';
+    const crm = (crmState[leadKey(l)]?.status)||'new';
     if (fCRM && crm !== fCRM) return false;
     return true;
   });
@@ -882,10 +979,12 @@ function renderLeads() {
     '<th>Tier</th><th>Pitch Angle</th><th>CRM Status</th>' +
     '</tr></thead><tbody>' +
     list.map((b,i) => {
-      const crm = crmState[b.name] || { status:'new', note:'' };
-      return '<tr>' +
-        '<td><div class="biz-name">' + b.name + (b.simulated?'<span style="font-family:JetBrains Mono,monospace;font-size:7px;color:var(--dim);margin-left:5px">[SIM]</span>':'') + '</div>' +
-        '<div class="biz-cat">' + b.category + ' · ' + b.area + '</div></td>' +
+      const key = leadKey(b);
+      const crm = crmState[key] || { status:'new', note:'' };
+      const safeKey = encodeURIComponent(key);
+      return '<tr class="lead-row" onclick="openOutreach(decodeURIComponent(\'' + safeKey + '\'))">' +
+        '<td><div class="biz-name">' + escapeHtml(b.name) + (b.simulated?'<span style="font-family:JetBrains Mono,monospace;font-size:7px;color:var(--dim);margin-left:5px">[SIM]</span>':'') + '</div>' +
+        '<div class="biz-cat">' + escapeHtml(b.category) + ' · ' + escapeHtml(b.area) + '</div></td>' +
         '<td><span class="stars">' + stars(b.rating) + '</span><span class="rct">(' + b.reviews + ')</span></td>' +
         '<td>' + (b.hasWebsite?'<span class="has-web">Has site</span>':'<span class="no-web">✓ No site</span>') + '</td>' +
         '<td><div class="dual-score"><div><span class="snum ' + sc(b.wtpScore||0) + '">' + (b.wtpScore||0) + '</span>' +
@@ -895,16 +994,16 @@ function renderLeads() {
         '<div class="bbar"><div class="bfill" style="width:' + (b.oppScore||0) + '%;background:' + bc(b.oppScore||0) + '"></div></div>' +
         '<div class="slbl">OPP</div></div></div></td>' +
         '<td>' + tierBadge(b.tier||'COLD') + '</td>' +
-        '<td class="pitch-cell">' + (b.pitch||'').substring(0,120) + ((b.pitch||'').length>120?'…':'') + '</td>' +
+        '<td class="pitch-cell">' + escapeHtml(b.pitch||'').substring(0,140) + ((b.pitch||'').length>140?'…':'') + '</td>' +
         '<td style="min-width:110px">' +
-        '<select class="crm-sel ' + crm.status + '" onchange="setCRM(\'' + b.name.replace(/'/g,"\\'") + '\',\'status\',this.value);this.className=\'crm-sel \'+this.value">' +
+        '<select class="crm-sel ' + crm.status + '" onclick="event.stopPropagation()" onchange="setCRM(decodeURIComponent(\'' + safeKey + '\'),\'status\',this.value);this.className=\'crm-sel \'+this.value">' +
         '<option value="new"' + (crm.status==='new'?' selected':'') + '>New</option>' +
         '<option value="contacted"' + (crm.status==='contacted'?' selected':'') + '>Contacted</option>' +
         '<option value="interested"' + (crm.status==='interested'?' selected':'') + '>Interested</option>' +
         '<option value="rejected"' + (crm.status==='rejected'?' selected':'') + '>Rejected</option>' +
         '<option value="followup"' + (crm.status==='followup'?' selected':'') + '>Follow Up</option>' +
         '</select>' +
-        '<input class="note-inp" value="' + (crm.note||'') + '" placeholder="Add note..." onblur="setCRM(\'' + b.name.replace(/'/g,"\\'") + '\',\'note\',this.value)">' +
+        '<input class="note-inp" value="' + escapeAttr(crm.note||'') + '" placeholder="Add note..." onclick="event.stopPropagation()" onblur="setCRM(decodeURIComponent(\'' + safeKey + '\'),\'note\',this.value)">' +
         '</td></tr>';
     }).join('') +
     '</tbody></table>';
@@ -913,6 +1012,66 @@ function renderLeads() {
 function setCRM(name, field, val) {
   if (!crmState[name]) crmState[name] = { status:'new', note:'' };
   crmState[name][field] = val;
+  saveSession();
+}
+
+function findLeadByKey(key) {
+  return leads.find(l => leadKey(l) === key);
+}
+
+function openOutreach(key) {
+  const lead = findLeadByKey(key);
+  if (!lead) return;
+  selectedLeadKey = key;
+  if (!lead.firstMessage) lead.firstMessage = buildFirstMessage(lead);
+  if (!lead.followupMessage) lead.followupMessage = buildReplyFollowup(lead);
+
+  document.getElementById('outreach-name').textContent = lead.name;
+  document.getElementById('outreach-meta').textContent = lead.category + ' · ' + lead.area + ' · ' + (lead.hasWebsite ? 'has website' : 'no website');
+  document.getElementById('outreach-phone').value = lead.phone || '';
+  document.getElementById('outreach-message').value = lead.firstMessage;
+  document.getElementById('followup-message').textContent = lead.followupMessage;
+  document.getElementById('outreach-panel').classList.add('open');
+  updateWhatsAppLink();
+  saveSession();
+}
+
+function closeOutreach() {
+  document.getElementById('outreach-panel').classList.remove('open');
+}
+
+function updateSelectedLeadPhone(value) {
+  const lead = findLeadByKey(selectedLeadKey);
+  if (!lead) return;
+  lead.phone = value;
+  updateWhatsAppLink();
+  saveSession();
+}
+
+function updateWhatsAppLink() {
+  const lead = findLeadByKey(selectedLeadKey);
+  if (lead) lead.firstMessage = document.getElementById('outreach-message').value;
+  const phone = normalizePhone(document.getElementById('outreach-phone').value);
+  const message = document.getElementById('outreach-message').value.trim();
+  const link = document.getElementById('wa-link');
+  if (!phone || !message) {
+    link.href = '#';
+    link.classList.add('disabled');
+    link.textContent = phone ? 'Add message' : 'Add WhatsApp number';
+    return;
+  }
+  link.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+  link.classList.remove('disabled');
+  link.textContent = 'Open in WhatsApp';
+  saveSession();
+}
+
+function copyMessage() {
+  const message = document.getElementById('outreach-message').value.trim();
+  if (!message) return;
+  navigator.clipboard.writeText(message).then(() => {
+    log('Copied first message for ' + (findLeadByKey(selectedLeadKey)?.name || 'lead'), 'o', 'h');
+  });
 }
 
 let sortDir = -1;
@@ -1084,14 +1243,212 @@ function addChip(type) {
   };
   document.getElementById(isArea?'area-chips':'cat-chips').appendChild(chip);
   inp.value='';
+  saveSession();
+}
+
+function getSelectedChipValues(selector, activeClass) {
+  return [...document.querySelectorAll(selector + ' .chip.' + activeClass)].map(c => c.dataset.val || c.textContent.trim());
+}
+
+function setSelectedChipValues(selector, activeClass, values) {
+  const wanted = new Set((values || []).map(v => String(v).toLowerCase()));
+  document.querySelectorAll(selector + ' .chip').forEach(chip => {
+    const val = String(chip.dataset.val || chip.textContent).toLowerCase();
+    chip.classList.toggle(activeClass, wanted.has(val));
+  });
+}
+
+function collectSession() {
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    leads,
+    crmState,
+    chainCount,
+    selectedLeadKey,
+    filters: {
+      areas: getSelectedChipValues('#area-chips', 'on'),
+      categories: getSelectedChipValues('#cat-chips', 'on2'),
+      minReviews: document.getElementById('min-rev')?.value,
+      minRating: document.getElementById('min-rat')?.value,
+      minWtp: document.getElementById('min-wtp')?.value,
+      delay: document.getElementById('delay')?.value,
+      priceTier: document.getElementById('price-tier')?.value,
+      search: document.getElementById('lead-search')?.value || '',
+      tier: document.getElementById('f-tier')?.value || '',
+      web: document.getElementById('f-web')?.value || '',
+      crm: document.getElementById('f-crm')?.value || '',
+      sort: document.getElementById('f-sort')?.value || 'wtp',
+      skipChain: document.getElementById('tog-chain')?.checked,
+      dedup: document.getElementById('tog-dedup')?.checked,
+      noWebFirst: document.getElementById('tog-noweb')?.checked,
+      backendUrl
+    }
+  };
+}
+
+function saveSession() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(collectSession()));
+    } catch (e) {
+      console.warn('LeadHunter session save failed', e);
+    }
+  }, 120);
+}
+
+function applySession(session) {
+  if (!session || !Array.isArray(session.leads)) return false;
+  leads = session.leads.map(normalizeImportedLead);
+  Object.keys(crmState).forEach(k => delete crmState[k]);
+  Object.entries(session.crmState || {}).forEach(([k,v]) => crmState[k] = v);
+  chainCount = Number(session.chainCount || 0);
+  selectedLeadKey = session.selectedLeadKey || '';
+
+  const f = session.filters || {};
+  setSelectedChipValues('#area-chips', 'on', f.areas);
+  setSelectedChipValues('#cat-chips', 'on2', f.categories);
+  if (f.minReviews) document.getElementById('min-rev').value = f.minReviews;
+  if (f.minRating) document.getElementById('min-rat').value = f.minRating;
+  if (f.minWtp) document.getElementById('min-wtp').value = f.minWtp;
+  if (f.delay) document.getElementById('delay').value = f.delay;
+  if (f.priceTier) document.getElementById('price-tier').value = f.priceTier;
+  if (document.getElementById('lead-search')) document.getElementById('lead-search').value = f.search || '';
+  if (document.getElementById('f-tier')) document.getElementById('f-tier').value = f.tier || '';
+  if (document.getElementById('f-web')) document.getElementById('f-web').value = f.web || '';
+  if (document.getElementById('f-crm')) document.getElementById('f-crm').value = f.crm || '';
+  if (document.getElementById('f-sort')) document.getElementById('f-sort').value = f.sort || 'wtp';
+  if (typeof f.skipChain === 'boolean') document.getElementById('tog-chain').checked = f.skipChain;
+  if (typeof f.dedup === 'boolean') document.getElementById('tog-dedup').checked = f.dedup;
+  if (typeof f.noWebFirst === 'boolean') document.getElementById('tog-noweb').checked = f.noWebFirst;
+  if (f.backendUrl) {
+    backendUrl = f.backendUrl;
+    document.getElementById('backend-url').value = f.backendUrl;
+  }
+
+  updateStats();
+  renderLeads();
+  buildInsights();
+  renderTopLeads();
+  if (selectedLeadKey && findLeadByKey(selectedLeadKey)) openOutreach(selectedLeadKey);
+  return true;
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    if (applySession(JSON.parse(raw))) {
+      log('Restored saved browser session with ' + leads.length + ' leads', 'o', 'h');
+      if (leads.length) switchTab('leads');
+    }
+  } catch (e) {
+    console.warn('LeadHunter session load failed', e);
+  }
+}
+
+function clearSavedSession() {
+  localStorage.removeItem(SESSION_KEY);
+  log('Saved browser session cleared', 'o', 'h');
+}
+
+function normalizeImportedLead(lead) {
+  const normalized = {
+    name: lead.name || lead.Name || '',
+    category: lead.category || lead.Category || '',
+    area: lead.area || lead.Area || '',
+    rating: Number(lead.rating ?? lead.Rating ?? 0),
+    reviews: Number(lead.reviews ?? lead.Reviews ?? 0),
+    hasWebsite: String(lead.hasWebsite ?? lead['Has Website'] ?? 'No').toLowerCase().startsWith('y') || lead.hasWebsite === true,
+    phone: lead.phone || lead.Phone || '',
+    address: lead.address || lead.Address || '',
+    source: lead.source || lead.Source || 'imported',
+    simulated: lead.simulated || false,
+    wtpScore: Number(lead.wtpScore ?? lead['WTP Score'] ?? 0),
+    oppScore: Number(lead.oppScore ?? lead['Opp Score'] ?? lead.Opportunity ?? 0),
+    tier: lead.tier || lead.Tier || 'COLD',
+    pitch: lead.pitch || lead.Pitch || lead['Pitch Angle'] || '',
+    firstMessage: lead.firstMessage || lead['Message 1'] || '',
+    followupMessage: lead.followupMessage || lead['Follow Up'] || '',
+    composite: Number(lead.composite ?? lead.Composite ?? 0)
+  };
+  if (!normalized.pitch) normalized.pitch = buildFirstMessage(normalized);
+  if (!normalized.firstMessage) normalized.firstMessage = buildFirstMessage(normalized);
+  if (!normalized.followupMessage) normalized.followupMessage = buildReplyFollowup(normalized);
+  if (!normalized.composite) normalized.composite = Math.round(((normalized.wtpScore || 0) * .55) + ((normalized.oppScore || 0) * .45));
+  return normalized;
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], next = text[i + 1];
+    if (ch === '"' && quoted && next === '"') { cell += '"'; i++; continue; }
+    if (ch === '"') { quoted = !quoted; continue; }
+    if (ch === ',' && !quoted) { row.push(cell); cell = ''; continue; }
+    if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = ''; continue;
+    }
+    cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim()));
+}
+
+function importCSV(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCSV(String(reader.result || ''));
+    if (rows.length < 2) { alert('CSV has no lead rows'); return; }
+    const headers = rows[0].map(h => h.trim());
+    const imported = rows.slice(1).map(row => {
+      const item = {};
+      headers.forEach((h, i) => item[h] = row[i] || '');
+      return normalizeImportedLead(item);
+    }).filter(l => l.name);
+
+    leads = imported;
+    Object.keys(crmState).forEach(k => delete crmState[k]);
+    rows.slice(1).forEach((row, idx) => {
+      const item = {};
+      headers.forEach((h, i) => item[h] = row[i] || '');
+      const key = leadKey(imported[idx] || {});
+      if (key !== '||') crmState[key] = { status: item['CRM Status'] || 'new', note: item.Note || '' };
+    });
+    chainCount = 0;
+    selectedLeadKey = '';
+    closeOutreach();
+    sortLeads();
+    updateStats();
+    renderLeads();
+    buildInsights();
+    renderTopLeads();
+    saveSession();
+    switchTab('leads');
+    log('Imported ' + leads.length + ' leads from CSV and saved the session', 'o', 'h');
+  };
+  reader.readAsText(file);
 }
 
 function exportCSV() {
   if (!leads.length) { alert('No leads to export'); return; }
-  const h = ['Name','Category','Area','Rating','Reviews','Has Website','WTP Score','Opp Score','Tier','Pitch','CRM Status','Note'];
+  const h = ['Name','Category','Area','Rating','Reviews','Has Website','Phone','Address','WTP Score','Opp Score','Tier','Pitch','Message 1','Follow Up','CRM Status','Note','Source'];
   const rows = leads.map(l => {
-    const crm = crmState[l.name] || { status:'new', note:'' };
-    return [l.name,l.category,l.area,l.rating,l.reviews,l.hasWebsite?'Yes':'No',l.wtpScore,l.oppScore,l.tier,'"'+(l.pitch||'').replace(/"/g,"''")+'"',crm.status,'"'+(crm.note||'')+'"'].join(',');
+    const crm = crmState[leadKey(l)] || { status:'new', note:'' };
+    return [
+      l.name,l.category,l.area,l.rating,l.reviews,l.hasWebsite?'Yes':'No',
+      l.phone || '', l.address || '', l.wtpScore || 0, l.oppScore || 0, l.tier || '',
+      l.pitch || buildFirstMessage(l),
+      l.firstMessage || buildFirstMessage(l),
+      l.followupMessage || buildReplyFollowup(l),
+      crm.status, crm.note || '', l.source || ''
+    ].map(csvCell).join(',');
   });
   const csv = [h.join(','), ...rows].join('\n');
   const a = document.createElement('a');
@@ -1102,10 +1459,16 @@ function exportCSV() {
 
 // Initialize chip toggles
 document.querySelectorAll('#area-chips .chip').forEach(c => {
-  c.addEventListener('click', () => c.classList.toggle('on'));
+  c.addEventListener('click', () => { c.classList.toggle('on'); saveSession(); });
 });
 document.querySelectorAll('#cat-chips .chip').forEach(c => {
-  c.addEventListener('click', () => c.classList.toggle('on2'));
+  c.addEventListener('click', () => { c.classList.toggle('on2'); saveSession(); });
+});
+
+['min-rev','min-rat','min-wtp','delay','price-tier','lead-search','f-tier','f-web','f-crm','f-sort','tog-chain','tog-dedup','tog-noweb'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveSession);
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.addEventListener('input', saveSession);
 });
 
 // Auto-connect to built-in backend on load
@@ -1133,6 +1496,7 @@ async function autoConnect() {
   }
 }
 
+loadSession();
 autoConnect();
 </script>
 </body>
