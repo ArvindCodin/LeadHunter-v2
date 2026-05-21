@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm --filter @workspace/leadhunter build",
+  "outputDirectory": "artifacts/leadhunter/dist/public",
+  "installCommand": "pnpm install --frozen-lockfile"
+}

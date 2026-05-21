@@ -1,19 +1,1503 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LeadHunter v2</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadHunter Chennai v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+:root{
+  --bg:#050508;--s1:#0e0e14;--s2:#16161f;--s3:#1e1e2a;
+  --b:#252533;--b2:#32324a;
+  --acc:#c8f542;--acc2:#f5a623;--acc3:#42d9f5;
+  --red:#f54242;--purple:#b87dff;
+  --text:#eeeef5;--sub:#9898b8;--dim:#525270;--r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:13px;display:flex;flex-direction:column;height:100vh;position:relative;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+
+.topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;background:var(--s1);border-bottom:1px solid var(--b);flex-shrink:0;z-index:100;position:relative;}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.5px;color:var(--acc);display:flex;align-items:center;gap:8px;}
+.brand-badge{background:rgba(200,245,66,.12);border:1px solid rgba(200,245,66,.3);color:var(--acc);font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
+.top-stats{margin-left:auto;display:flex;gap:10px;align-items:center;}
+.stat-pill{background:var(--s2);border:1px solid var(--b);border-radius:4px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;display:flex;align-items:center;gap:6px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;}
+.stat-pill .val{font-size:14px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:0;}
+.sp-green .val{color:var(--acc)}.sp-orange .val{color:var(--acc2)}.sp-blue .val{color:var(--acc3)}.sp-purple .val{color:var(--purple)}
+
+.app{display:grid;grid-template-columns:310px 1fr;flex:1;overflow:hidden;}
+
+.sidebar{background:var(--s1);border-right:1px solid var(--b);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.panel{border-bottom:1px solid var(--b);padding:16px}
+.panel-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--b)}
+.frow{margin-bottom:11px}
+label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px;}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 11px;border-radius:var(--r);outline:none;transition:border-color .15s;appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);background:rgba(200,245,66,.02)}
+select option{background:var(--s2)}
+textarea{resize:vertical;min-height:50px;line-height:1.5}
+
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{background:var(--s2);border:1px solid var(--b);color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 9px;border-radius:20px;cursor:pointer;transition:all .15s;user-select:none;letter-spacing:.5px;}
+.chip:hover{border-color:var(--b2);color:var(--sub)}
+.chip.on{background:rgba(200,245,66,.1);border-color:var(--acc);color:var(--acc)}
+.chip.on2{background:rgba(66,217,245,.1);border-color:var(--acc3);color:var(--acc3)}
+
+.rrow{display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;-webkit-appearance:none;height:2px;background:var(--s3);border-radius:2px;outline:none;border:none;padding:0;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--acc);border-radius:50%;cursor:pointer;box-shadow:0 0 10px rgba(200,245,66,.4);}
+.rval{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc);min-width:28px;text-align:right;}
+
+.trow{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
+.tinfo{flex:1}.tlabel{font-size:12px;color:var(--text)}.tdesc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);margin-top:2px;}
+.tog{position:relative;width:34px;height:18px;flex-shrink:0}
+.tog input{display:none}
+.tog-track{position:absolute;inset:0;background:var(--s3);border:1px solid var(--b);border-radius:9px;cursor:pointer;transition:all .2s;}
+.tog-track::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--dim);border-radius:50%;transition:all .2s;}
+.tog input:checked~.tog-track{background:rgba(200,245,66,.2);border-color:var(--acc)}
+.tog input:checked~.tog-track::after{background:var(--acc);left:18px}
+
+.run-btn{margin:16px;background:var(--acc);color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;text-transform:uppercase;border:none;border-radius:var(--r);padding:13px;cursor:pointer;transition:all .2s;width:calc(100% - 32px);position:relative;z-index:1;}
+.run-btn:hover{background:#d8ff55;transform:translateY(-1px);box-shadow:0 6px 24px rgba(200,245,66,.25)}
+.run-btn:disabled{background:var(--s3);color:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
+.stop-btn{margin:0 16px 8px;background:transparent;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid rgba(245,66,66,.4);border-radius:var(--r);padding:8px;cursor:pointer;transition:all .15s;width:calc(100% - 32px);display:none;position:relative;z-index:1;}
+.stop-btn:hover{background:rgba(245,66,66,.08)}
+
+.prog-wrap{padding:10px 16px 14px;flex-shrink:0}
+.prog-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-bg{height:2px;background:var(--s3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--acc);border-radius:2px;transition:width .4s ease;width:0%}
+
+.backend-box{margin:0 16px 16px;background:rgba(184,125,255,.06);border:1px solid rgba(184,125,255,.25);border-radius:var(--r);padding:12px;}
+.bb-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.bb-url{display:flex;gap:6px}
+.bb-url input{flex:1;font-size:10px;background:var(--s2);border:1px solid var(--b);color:var(--sub);border-radius:var(--r);padding:6px 9px;font-family:'JetBrains Mono',monospace;outline:none;}
+.bb-url input:focus{border-color:var(--purple);color:var(--text)}
+.bb-url input::placeholder{color:var(--dim)}
+.bb-btn{background:rgba(184,125,255,.15);border:1px solid rgba(184,125,255,.3);color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:9px;padding:6px 10px;border-radius:var(--r);cursor:pointer;white-space:nowrap;letter-spacing:.5px;position:relative;z-index:1;}
+.bb-btn:hover{background:rgba(184,125,255,.25)}
+.bb-status{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);}
+.bb-status.ok{color:var(--acc)}.bb-status.fail{color:var(--red)}
+
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.tabs{display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--b);flex-shrink:0;padding:0 20px;}
+.tab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:14px 16px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;position:relative;z-index:1;}
+.tab:hover{color:var(--sub)}.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.tab-content{flex:1;overflow:hidden;display:none}
+.tab-content.active{display:flex;flex-direction:column}
+
+.log-area{flex:1;overflow-y:auto;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;}
+.log-area::-webkit-scrollbar{width:3px}.log-area::-webkit-scrollbar-thumb{background:var(--b2)}
+.ll{display:flex;gap:10px;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.lt{color:var(--dim);flex-shrink:0;font-size:10px}
+.lk{flex-shrink:0;padding:1px 6px;border-radius:3px;font-size:8px;letter-spacing:1px;text-transform:uppercase;}
+.lk-i{background:rgba(66,217,245,.1);color:var(--acc3)}
+.lk-a{background:rgba(200,245,66,.1);color:var(--acc)}
+.lk-s{background:rgba(245,166,35,.1);color:var(--acc2)}
+.lk-o{background:rgba(66,245,130,.1);color:#42f582}
+.lk-w{background:rgba(245,66,66,.1);color:var(--red)}
+.lk-r{background:rgba(184,125,255,.1);color:var(--purple)}
+.lk-c{background:rgba(150,150,150,.1);color:var(--sub)}
+.lm{color:var(--text)}.lm.d{color:var(--sub)}.lm.h{color:var(--acc)}.lm.f{color:var(--acc2)}.lm.p{color:var(--purple)}
+
+.toolbar{padding:10px 16px;background:var(--s1);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.sbox{background:var(--s2);border:1px solid var(--b);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 11px;border-radius:var(--r);outline:none;width:180px;}
+.sbox:focus{border-color:var(--acc)}.sbox::placeholder{color:var(--dim)}
+.fsel{background:var(--s2);border:1px solid var(--b);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;padding:6px 9px;border-radius:var(--r);outline:none;cursor:pointer;appearance:none;letter-spacing:.5px;}
+.exp-btn{margin-left:auto;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;position:relative;z-index:1;}
+.exp-btn:hover{background:rgba(200,245,66,.08)}
+.tool-btn{background:transparent;border:1px solid var(--b2);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;border-radius:var(--r);cursor:pointer;transition:all .15s;position:relative;z-index:1;}
+.tool-btn:hover{border-color:var(--acc3);color:var(--acc3);background:rgba(66,217,245,.06)}
+.leads-wrap{flex:1;overflow:auto;}
+.leads-wrap::-webkit-scrollbar{width:4px;height:4px}.leads-wrap::-webkit-scrollbar-thumb{background:var(--b2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:5}
+thead tr{background:var(--s1)}
+th{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:9px 14px;text-align:left;border-bottom:1px solid var(--b);white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--sub)}
+td{padding:9px 14px;border-bottom:1px solid rgba(37,37,51,.6);vertical-align:top;}
+tr:hover td{background:rgba(255,255,255,.015)}
+tr.lead-row{cursor:pointer}
+.biz-name{font-weight:600;color:var(--text);font-size:13px;line-height:1.2}
+.biz-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;}
+.biz-chain{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--red);margin-top:2px;}
+.score-block{display:flex;flex-direction:column;gap:4px;min-width:80px}
+.dual-score{display:flex;gap:6px;align-items:center}
+.snum{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;}
+.snum.s90{color:var(--acc)}.snum.s70{color:var(--acc2)}.snum.s50{color:var(--sub)}.snum.s0{color:var(--dim)}
+.slbl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;}
+.bbar{width:55px;height:3px;background:var(--s3);border-radius:2px;overflow:hidden;margin-top:1px}
+.bfill{height:100%;border-radius:2px;transition:width .5s}
+.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.5px;text-transform:uppercase;}
+.b-hot{background:rgba(200,245,66,.12);color:var(--acc);border:1px solid rgba(200,245,66,.25)}
+.b-warm{background:rgba(245,166,35,.12);color:var(--acc2);border:1px solid rgba(245,166,35,.25)}
+.b-cold{background:rgba(82,82,112,.1);color:var(--dim);border:1px solid var(--b)}
+.b-skip{background:rgba(245,66,66,.08);color:#f57a7a;border:1px solid rgba(245,66,66,.2)}
+.b-chain{background:rgba(245,66,66,.1);color:var(--red);border:1px solid rgba(245,66,66,.3)}
+.no-web{color:var(--acc);font-size:10px;font-weight:600}
+.has-web{color:var(--red);font-size:9px}
+.stars{color:var(--acc2);font-size:11px;letter-spacing:-1px}
+.rct{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);margin-left:2px}
+.pitch-cell{font-size:11px;color:var(--sub);line-height:1.5;max-width:220px;}
+.pitch-cell strong{color:var(--acc2);font-weight:500}
+.crm-sel{background:var(--s2);border:1px solid var(--b);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 6px;border-radius:3px;outline:none;cursor:pointer;appearance:none;width:100%;transition:border-color .15s;}
+.crm-sel.contacted{border-color:var(--acc3);color:var(--acc3);background:rgba(66,217,245,.06)}
+.crm-sel.interested{border-color:var(--acc);color:var(--acc);background:rgba(200,245,66,.06)}
+.crm-sel.rejected{border-color:var(--red);color:var(--red);background:rgba(245,66,66,.06)}
+.crm-sel.followup{border-color:var(--acc2);color:var(--acc2);background:rgba(245,166,35,.06)}
+.note-inp{width:100%;background:transparent;border:none;border-bottom:1px solid var(--b);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 0;outline:none;margin-top:4px;}
+.note-inp:focus{border-bottom-color:var(--acc);color:var(--text)}
+.note-inp::placeholder{color:var(--dim)}
+
+.outreach-panel{position:fixed;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));max-height:calc(100vh - 88px);overflow:auto;background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);box-shadow:0 18px 70px rgba(0,0,0,.45);z-index:200;display:none;}
+.outreach-panel.open{display:block;animation:fi .16s ease}
+.outreach-head{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b);background:var(--s2)}
+.outreach-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text)}
+.outreach-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.close-btn{background:transparent;border:1px solid var(--b2);color:var(--sub);border-radius:var(--r);width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1}
+.close-btn:hover{border-color:var(--red);color:var(--red)}
+.outreach-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.msg-block{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:12px}
+.msg-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.msg-text{font-size:12px;color:var(--text);line-height:1.55;white-space:pre-wrap}
+.msg-textarea{min-height:86px;font-family:'Instrument Sans',sans-serif;font-size:12px;color:var(--text)}
+.wa-actions{display:flex;gap:8px;flex-wrap:wrap}
+.wa-btn{flex:1;background:#25d366;color:#06170b;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.8px;padding:10px 12px;cursor:pointer;text-decoration:none;text-align:center}
+.wa-btn:hover{background:#35e276}
+.wa-btn.disabled{background:var(--s3);color:var(--dim);pointer-events:none}
+.copy-msg-btn{background:transparent;border:1px solid var(--acc3);color:var(--acc3);border-radius:var(--r);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:10px 12px;cursor:pointer}
+.phone-row{display:flex;gap:8px}
+.phone-row input{flex:1}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);gap:10px;}
+.empty-icon{font-size:40px;opacity:.25}.empty-text{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+
+.agent-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
+.agent-pane{border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden;}
+.agent-pane:last-child{border-right:none}
+.agent-header{padding:12px 18px;background:var(--s1);border-bottom:1px solid var(--b);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--sub);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pu 2s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.agent-body{flex:1;overflow-y:auto;padding:14px;}
+.agent-body::-webkit-scrollbar{width:3px}.agent-body::-webkit-scrollbar-thumb{background:var(--b2)}
+.tc{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:12px 13px;margin-bottom:9px;animation:fi .2s ease}
+.tc.hot{border-color:rgba(200,245,66,.2);background:rgba(200,245,66,.02)}
+.tc.warm{border-color:rgba(245,166,35,.18)}
+.tc.skip{border-color:rgba(245,66,66,.15)}
+.tc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.tc-name{font-weight:600;font-size:13px}
+.tc-scores{display:flex;gap:8px;flex-shrink:0}
+.tc-score{text-align:center}
+.tc-sn{font-family:'Syne',sans-serif;font-weight:800;font-size:16px}
+.tc-sl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.tc-reason{font-size:11px;color:var(--sub);line-height:1.5;margin-bottom:7px}
+.tc-pitch{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.15);border-radius:4px;padding:8px 10px;font-size:11px;color:var(--acc2);line-height:1.5;margin-bottom:7px;}
+.tc-pitch::before{content:'Pitch: ';font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;}
+.tc-meta{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);display:flex;gap:10px;flex-wrap:wrap;}
+
+.insights-body{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start;}
+.insights-body::-webkit-scrollbar{width:3px}.insights-body::-webkit-scrollbar-thumb{background:var(--b2)}
+.ic{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:16px;animation:fi .3s ease}
+.ic.full{grid-column:1/-1}
+.ic-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--acc);margin-bottom:10px}
+.ic-body{font-size:12px;color:var(--sub);line-height:1.7}
+.ic-body strong{color:var(--text);font-weight:500}
+.ic-body .hi{color:var(--acc)}
+.ic-body .fi{color:var(--acc2)}
+
+.be-body{flex:1;overflow-y:auto;padding:20px;}
+.be-body::-webkit-scrollbar{width:3px}.be-body::-webkit-scrollbar-thumb{background:var(--b2)}
+.be-card{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.be-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--purple);margin-bottom:8px}
+.be-card p{font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:10px}
+.be-card ol,.be-card ul{font-size:12px;color:var(--sub);line-height:1.8;padding-left:18px;margin-bottom:10px}
+.be-card ol li strong,.be-card ul li strong{color:var(--text)}
+.code-block{background:var(--s3);border:1px solid var(--b2);border-radius:4px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc3);line-height:1.7;white-space:pre;overflow-x:auto;position:relative;margin-top:8px;}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--s2);border:1px solid var(--b2);color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 8px;border-radius:3px;cursor:pointer;letter-spacing:1px;}
+.copy-btn:hover{color:var(--acc);border-color:var(--acc)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 2L3 6.5v7L10 18l7-4.5v-7L10 2z" stroke="currentColor" stroke-width="1.5" fill="rgba(200,245,66,.12)"/>
+      <circle cx="10" cy="10" r="2.5" fill="currentColor"/>
+    </svg>
+    LeadHunter
+    <span class="brand-badge">v2 · Chennai</span>
+  </div>
+  <div class="top-stats">
+    <div class="stat-pill sp-green">Leads <span class="val" id="s-found">0</span></div>
+    <div class="stat-pill sp-orange">Hot <span class="val" id="s-hot">0</span></div>
+    <div class="stat-pill sp-blue">No Site <span class="val" id="s-noweb">0</span></div>
+    <div class="stat-pill sp-purple">Chains Skipped <span class="val" id="s-chain">0</span></div>
+  </div>
+</div>
+
+<div class="app">
+<div class="sidebar">
+
+  <div class="panel">
+    <div class="panel-title">Target Areas</div>
+    <div class="frow">
+      <div class="chips" id="area-chips">
+        <div class="chip on" data-val="Anna Nagar">Anna Nagar</div>
+        <div class="chip on" data-val="T. Nagar">T. Nagar</div>
+        <div class="chip" data-val="Velachery">Velachery</div>
+        <div class="chip" data-val="Adyar">Adyar</div>
+        <div class="chip" data-val="OMR">OMR</div>
+        <div class="chip" data-val="Nungambakkam">Nungambakkam</div>
+        <div class="chip" data-val="Porur">Porur</div>
+        <div class="chip" data-val="Tambaram">Tambaram</div>
+        <div class="chip" data-val="Mylapore">Mylapore</div>
+        <div class="chip" data-val="Kilpauk">Kilpauk</div>
+        <div class="chip" data-val="Perambur">Perambur</div>
+        <div class="chip" data-val="Guindy">Guindy</div>
+        <div class="chip" data-val="Sholinganallur">Sholinganallur</div>
+        <div class="chip" data-val="Chromepet">Chromepet</div>
+        <div class="chip" data-val="Ambattur">Ambattur</div>
+        <div class="chip" data-val="Kodambakkam">Kodambakkam</div>
+        <div class="chip" data-val="Alwarpet">Alwarpet</div>
+        <div class="chip" data-val="Boat Club">Boat Club</div>
+        <div class="chip" data-val="Thiruvanmiyur">Thiruvanmiyur</div>
+        <div class="chip" data-val="Perungudi">Perungudi</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <input type="text" id="custom-area" placeholder="Add custom area..." style="flex:1;font-size:10px">
+      <button onclick="addChip('area')" style="background:var(--s3);border:1px solid var(--b);color:var(--acc);font-family:'JetBrains Mono',monospace;font-size:9px;padding:0 10px;border-radius:var(--r);cursor:pointer;white-space:nowrap;position:relative;z-index:1">+ ADD</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Categories</div>
+    <div class="frow">
+      <label>High WTP — Best Targets</label>
+      <div class="chips" id="cat-chips">
+        <div class="chip on2" data-val="dental clinic" data-tier="A">Dental Clinic</div>
+        <div class="chip on2" data-val="clinic" data-tier="A">Clinic</div>
+        <div class="chip on2" data-val="interior designer" data-tier="A">Interior Designer</div>
+        <div class="chip on2" data-val="photography studio" data-tier="A">Photography</div>
+        <div class="chip on2" data-val="event planner" data-tier="A">Event Planner</div>
+        <div class="chip on2" data-val="wedding hall" data-tier="A">Wedding Hall</div>
+        <div class="chip on2" data-val="real estate agent" data-tier="A">Real Estate</div>
+        <div class="chip on2" data-val="catering" data-tier="A">Catering</div>
+        <div class="chip on2" data-val="restaurant" data-tier="B">Restaurant</div>
+        <div class="chip on2" data-val="salon" data-tier="B">Salon</div>
+        <div class="chip on2" data-val="gym" data-tier="B">Gym</div>
+        <div class="chip on2" data-val="yoga studio" data-tier="B">Yoga Studio</div>
+        <div class="chip on2" data-val="boutique" data-tier="B">Boutique</div>
+        <div class="chip on2" data-val="bakery" data-tier="B">Bakery</div>
+        <div class="chip" data-val="tuition center" data-tier="B">Tuition Center</div>
+        <div class="chip" data-val="driving school" data-tier="C">Driving School</div>
+        <div class="chip" data-val="pharmacy" data-tier="C">Pharmacy</div>
+        <div class="chip" data-val="travel agent" data-tier="B">Travel Agent</div>
+        <div class="chip" data-val="printing shop" data-tier="C">Printing Shop</div>
+        <div class="chip" data-val="architect" data-tier="A">Architect</div>
+        <div class="chip" data-val="jewellery shop" data-tier="A">Jewellery</div>
+        <div class="chip" data-val="pet clinic" data-tier="B">Pet Clinic</div>
+        <div class="chip" data-val="spa" data-tier="B">Spa</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <input type="text" id="custom-cat" placeholder="Add custom category..." style="flex:1;font-size:10px">
+      <button onclick="addChip('cat')" style="background:var(--s3);border:1px solid var(--b);color:var(--acc3);font-family:'JetBrains Mono',monospace;font-size:9px;padding:0 10px;border-radius:var(--r);cursor:pointer;white-space:nowrap;position:relative;z-index:1">+ ADD</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Filters</div>
+    <div class="frow">
+      <label>Min Reviews</label>
+      <div class="rrow"><input type="range" id="min-rev" min="0" max="300" step="5" value="15" oninput="rv('rev-v',this.value)"><span class="rval" id="rev-v">15</span></div>
+    </div>
+    <div class="frow">
+      <label>Min Rating</label>
+      <div class="rrow"><input type="range" id="min-rat" min="2" max="5" step="0.1" value="3.8" oninput="rv('rat-v',this.value)"><span class="rval" id="rat-v">3.8</span></div>
+    </div>
+    <div class="frow">
+      <label>Min WTP Score to Show (0–100)</label>
+      <div class="rrow"><input type="range" id="min-wtp" min="0" max="80" step="5" value="35" oninput="rv('wtp-v',this.value)"><span class="rval" id="wtp-v">35</span></div>
+    </div>
+    <div class="frow">
+      <label>Request Delay (ms)</label>
+      <div class="rrow"><input type="range" id="delay" min="0" max="3000" step="100" value="500" oninput="rv('del-v',this.value)"><span class="rval" id="del-v">500</span></div>
+    </div>
+    <div class="trow">
+      <div class="tinfo"><div class="tlabel">Skip chains &amp; franchises</div><div class="tdesc">Auto-filter Naturals, CCD, Saravana etc.</div></div>
+      <label class="tog"><input type="checkbox" id="tog-chain" checked><div class="tog-track"></div></label>
+    </div>
+    <div class="trow">
+      <div class="tinfo"><div class="tlabel">No-website first</div><div class="tdesc">Sort businesses without sites to top</div></div>
+      <label class="tog"><input type="checkbox" id="tog-noweb" checked><div class="tog-track"></div></label>
+    </div>
+    <div class="trow">
+      <div class="tinfo"><div class="tlabel">Dedup across searches</div><div class="tdesc">Skip same business found twice</div></div>
+      <label class="tog"><input type="checkbox" id="tog-dedup" checked><div class="tog-track"></div></label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Your Offer</div>
+    <div class="frow">
+      <label>Service Description</label>
+      <textarea id="service-desc" rows="2" placeholder="e.g. Professional websites for local Chennai businesses starting ₹15,000">Professional websites for local Chennai businesses</textarea>
+    </div>
+    <div class="frow">
+      <label>Price Tier</label>
+      <select id="price-tier">
+        <option value="budget">Budget (₹8k–₹15k)</option>
+        <option value="mid" selected>Mid (₹15k–₹35k)</option>
+        <option value="premium">Premium (₹40k+)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-label"><span id="prog-label">Ready</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+  </div>
+
+  <button class="run-btn" id="run-btn" onclick="startScrape()">▶ HUNT LEADS</button>
+  <button class="stop-btn" id="stop-btn" onclick="stopScrape()">■ STOP</button>
+
+  <div class="backend-box">
+    <div class="bb-title">Backend Connector</div>
+    <div class="bb-url">
+      <input type="text" id="backend-url" placeholder="https://your-backend.replit.app/api" oninput="backendChanged()">
+      <button class="bb-btn" onclick="testBackend()">TEST</button>
+    </div>
+    <div class="bb-status" id="bb-status">Checking built-in backend...</div>
+  </div>
+
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('log')">Live Log</div>
+    <div class="tab" onclick="switchTab('leads')">Leads</div>
+    <div class="tab" onclick="switchTab('agent')">Agent View</div>
+    <div class="tab" onclick="switchTab('insights')">Insights</div>
+    <div class="tab" onclick="switchTab('backend')">Backend Setup</div>
+  </div>
+
+  <div class="tab-content active" id="tab-log">
+    <div class="log-area" id="log-area">
+      <div class="ll"><span class="lt">--:--:--</span><span class="lk lk-i">INFO</span><span class="lm d">LeadHunter v2 ready. Connecting to built-in backend...</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-leads">
+    <div class="toolbar">
+      <input type="text" class="sbox" id="lead-search" placeholder="Search leads..." oninput="renderLeads()">
+      <select class="fsel" id="f-tier" onchange="renderLeads()">
+        <option value="">All Tiers</option>
+        <option value="HOT">HOT</option>
+        <option value="WARM">WARM</option>
+        <option value="COLD">COLD</option>
+        <option value="SKIP">SKIP</option>
+      </select>
+      <select class="fsel" id="f-web" onchange="renderLeads()">
+        <option value="">All</option>
+        <option value="no">No website only</option>
+        <option value="yes">Has website</option>
+      </select>
+      <select class="fsel" id="f-crm" onchange="renderLeads()">
+        <option value="">All CRM</option>
+        <option value="new">New</option>
+        <option value="contacted">Contacted</option>
+        <option value="interested">Interested</option>
+        <option value="rejected">Rejected</option>
+        <option value="followup">Follow up</option>
+      </select>
+      <select class="fsel" id="f-sort" onchange="renderLeads()">
+        <option value="wtp">Sort: WTP Score</option>
+        <option value="opp">Sort: Opportunity</option>
+        <option value="reviews">Sort: Reviews</option>
+        <option value="rating">Sort: Rating</option>
+      </select>
+      <button class="tool-btn" onclick="document.getElementById('csv-import').click()">Import CSV</button>
+      <input id="csv-import" type="file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)">
+      <button class="tool-btn" onclick="clearSavedSession()">Clear Saved</button>
+      <button class="exp-btn" onclick="exportCSV()">&#8595; Export CSV</button>
+    </div>
+    <div class="leads-wrap" id="leads-wrap">
+      <div class="empty-state"><div class="empty-icon">&#128205;</div><div class="empty-text">No leads yet</div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-agent">
+    <div class="agent-wrap">
+      <div class="agent-pane">
+        <div class="agent-header"><div class="pulse"></div>Scoring Stream</div>
+        <div class="agent-body" id="thoughts-area">
+          <div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;padding:40px 16px">Agent will score each lead in real-time...</div>
+        </div>
+      </div>
+      <div class="agent-pane">
+        <div class="agent-header"><div style="width:6px;height:6px;border-radius:50%;background:var(--acc2)"></div>Top Opportunities</div>
+        <div class="agent-body" id="top-area">
+          <div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;padding:40px 16px">Best leads will appear here...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-insights">
+    <div class="insights-body" id="insights-area">
+      <div class="ic full" style="text-align:center">
+        <div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;padding:40px">Run scraper to generate insights...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-backend">
+    <div class="be-body">
+      <div class="be-card">
+        <h3>Built-in Backend (Active on Replit)</h3>
+        <p>This app is running on Replit with a built-in Node.js + Playwright backend already connected. The backend connector in the sidebar is pre-filled with your Replit URL. Just click TEST to verify the connection, then start hunting leads.</p>
+        <p>If you want to use an external backend instead, paste its URL in the left sidebar connector and click TEST.</p>
+      </div>
+      <div class="be-card">
+        <h3>How it works</h3>
+        <p>The frontend sends requests like:</p>
+        <div class="code-block">GET /api/scrape?q=dental+clinic+in+Anna+Nagar+Chennai&amp;max=20
+
+Response: { "results": [...real businesses...], "count": 14 }</div>
+        <p style="margin-top:10px">The Playwright scraper runs headless Chromium on the server, bypassing Google Maps CORS restrictions. When no backend is connected, the app uses realistic simulation.</p>
+      </div>
+      <div class="be-card">
+        <h3>External Backend (Optional)</h3>
+        <p>If you want to run your own backend (e.g. Railway, Render), use this Python server code:</p>
+        <div class="code-block"><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('py-code').textContent)">COPY</button><span id="py-code">from flask import Flask, request, jsonify
+from flask_cors import CORS
+from playwright.sync_api import sync_playwright
+import re
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/scrape')
+def scrape():
+    query = request.args.get('q','')
+    max_r = int(request.args.get('max', 20))
+    results = scrape_maps(query, max_r)
+    return jsonify({'results': results, 'count': len(results)})
+
+@app.route('/ping')
+def ping():
+    return jsonify({'status': 'ok'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="outreach-panel" id="outreach-panel" aria-live="polite">
+  <div class="outreach-head">
+    <div>
+      <div class="outreach-title" id="outreach-name">Lead</div>
+      <div class="outreach-meta" id="outreach-meta">Click a lead to generate outreach</div>
+    </div>
+    <button class="close-btn" onclick="closeOutreach()" aria-label="Close outreach panel">&times;</button>
+  </div>
+  <div class="outreach-body">
+    <div class="phone-row">
+      <input id="outreach-phone" type="text" placeholder="WhatsApp number, e.g. +919876543210" oninput="updateSelectedLeadPhone(this.value)">
+      <button class="copy-msg-btn" onclick="copyMessage()">Copy</button>
+    </div>
+    <div class="msg-block">
+      <div class="msg-label">Message 1</div>
+      <textarea id="outreach-message" class="msg-textarea" oninput="updateWhatsAppLink()"></textarea>
+    </div>
+    <div class="wa-actions">
+      <a class="wa-btn disabled" id="wa-link" href="#" target="_blank" rel="noopener">Open in WhatsApp</a>
+    </div>
+    <div class="msg-block">
+      <div class="msg-label">If they reply</div>
+      <div class="msg-text" id="followup-message"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let leads = [];
+let running = false;
+let stopped = false;
+let seen = new Set();
+let chainCount = 0;
+let backendUrl = '';
+let backendOk = false;
+let selectedLeadKey = '';
+const SESSION_KEY = 'leadhunter-v2-session';
+let saveTimer = null;
+
+const crmState = {};
+
+function leadKey(lead) {
+  return [lead.name, lead.area, lead.category].map(v => String(v || '').toLowerCase().trim()).join('|');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#96;');
+}
+
+function normalizePhone(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  let digits = raw.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) digits = digits.slice(1);
+  digits = digits.replace(/\D/g, '');
+  if (digits.length === 10) return '91' + digits;
+  if (digits.length > 10 && digits.startsWith('0')) digits = digits.replace(/^0+/, '');
+  return digits;
+}
+
+function csvCell(value) {
+  return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+}
+
+const CHAINS = [
+  'naturals','ccd','cafe coffee day','saravana stores','saravana bhavan',
+  'hotel saravana','kfc','mcdonalds','dominos','pizza hut','subway',
+  'burger king','apollo pharmacy','medplus','wellness forever',
+  'reliance fresh','reliance digital','spencer','lifestyle','shoppers stop',
+  'decathlon','zara','h&m','tanishq','malabar gold','kalyan jewellers',
+  'muthoot','manappuram','airtel store','jio point','samsung','lg showroom',
+  'honda','hyundai','maruti','tvs motors','bajaj','royal enfield showroom',
+  'hdfc bank','icici bank','sbi','canara','indian bank','axis bank','kotak',
+  'chennai silks','rmkv','nalli','pothy','kumaran silks','kalanikethan',
+  'heritage','aavin','nilgiris','bigbasket','grofers','swiggy','zomato office',
+  'haldirams','bikanervala','ananda bhavan','murugan idli','sangeetha',
+  'abcd','forest essentials','fab india','westside'
+];
+
+function isChain(name) {
+  const n = name.toLowerCase();
+  return CHAINS.some(c => n.includes(c));
+}
+
+const CAT_INTEL = {
+  'dental clinic':     { wtp:92, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Patients Google dentists before calling. A professional site with before/after photos and booking builds trust before they walk in. One new patient pays back the site cost.' },
+  'clinic':            { wtp:88, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'People search symptoms + area before choosing a doctor. A credibility site with specializations and timings is how you get found over competitors.' },
+  'interior designer': { wtp:95, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Your portfolio is your resume. Clients shortlist designers by looking at work online. No site = invisible to the clients who can actually pay.' },
+  'photography studio':{ wtp:90, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'A gallery site is your best salesperson. Wedding clients look at 5-10 photographers online before calling one. Be findable.' },
+  'event planner':     { wtp:88, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Corporate clients and brides plan months ahead on Google. A site with past events and client quotes converts cold traffic into calls.' },
+  'wedding hall':      { wtp:85, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Families visit 3-5 halls before booking. A site with capacity, photos, pricing and availability removes the friction to shortlist you.' },
+  'real estate agent': { wtp:87, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Buyers and NRIs search listings online for weeks before calling an agent. A listings site makes you the agent they trust first.' },
+  'catering':          { wtp:83, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Corporate bulk orders almost always start with a Google search. No site = missing the high-value clients who never call from flyers.' },
+  'architect':         { wtp:92, margin:'HIGH', discovery:'SEARCH', tier:'A', pitch:'Every client Googles an architect before meeting them. A portfolio site with completed projects is how premium clients decide who to shortlist.' },
+  'jewellery shop':    { wtp:80, margin:'HIGH', discovery:'BOTH',   tier:'A', pitch:'Online presence drives footfall for high-ticket items. A catalogue site builds desire before customers walk in.' },
+  'spa':               { wtp:82, margin:'HIGH', discovery:'SEARCH', tier:'B', pitch:'Urban clients book spas online. A site with services, pricing and online booking is how you compete with chains.' },
+  'restaurant':        { wtp:78, margin:'MED',  discovery:'BOTH',   tier:'B', pitch:'People search "best restaurant near me" before going out. A site with your menu, photos and Google Maps pin keeps you in that shortlist.' },
+  'salon':             { wtp:82, margin:'MED',  discovery:'BOTH',   tier:'B', pitch:'Zomato for food, but salons still get Googled. A booking site with stylist profiles converts walk-ins into loyal regulars.' },
+  'gym':               { wtp:80, margin:'MED',  discovery:'SEARCH', tier:'B', pitch:'New members research gyms before visiting. A site with plans, timings, trainer profiles and a free trial CTA drives sign-ups.' },
+  'yoga studio':       { wtp:78, margin:'MED',  discovery:'SEARCH', tier:'B', pitch:'Wellness seekers are active online. A schedule + booking page reduces the friction between interest and registration.' },
+  'boutique':          { wtp:75, margin:'MED',  discovery:'BOTH',   tier:'B', pitch:'A gallery site with latest collections drives footfall and WhatsApp orders. Instagram alone does not rank on Google.' },
+  'bakery':            { wtp:72, margin:'MED',  discovery:'BOTH',   tier:'B', pitch:'Custom cake orders and gifting decisions happen online. A site with photo gallery and WhatsApp order button drives sales.' },
+  'pet clinic':        { wtp:80, margin:'HIGH', discovery:'SEARCH', tier:'B', pitch:'Pet owners research vets online heavily. A credibility site with services, timings and emergency contact converts worried owners.' },
+  'travel agent':      { wtp:78, margin:'HIGH', discovery:'SEARCH', tier:'B', pitch:'Travelers compare packages online. A site with destinations, testimonials and instant WhatsApp inquiry button beats a plain JustDial listing.' },
+  'tuition center':    { wtp:72, margin:'MED',  discovery:'SEARCH', tier:'B', pitch:'Parents research tuition centers for months. A site with subjects, faculty, results and fees is how you stand out from flyers.' },
+  'driving school':    { wtp:65, margin:'LOW',  discovery:'SEARCH', tier:'C', pitch:'Students compare driving schools online. A simple site with fees, timings and Google reviews builds more trust than a hoarding.' },
+  'pharmacy':          { wtp:60, margin:'LOW',  discovery:'WALK',   tier:'C', pitch:'Most pharmacy visits are walk-in, but home delivery and prescription uploads are growing fast. A site positions you early.' },
+  'printing shop':     { wtp:62, margin:'LOW',  discovery:'REF',    tier:'C', pitch:'B2B clients want to spec and quote online. A service page with turnaround times and file upload saves phone calls and wins contracts.' },
+  'default':           { wtp:55, margin:'MED',  discovery:'BOTH',   tier:'C', pitch:'Local businesses with good reviews are leaving online leads on the table. A professional site captures the customers searching for you.' }
+};
+
+const PREMIUM_AREAS = ['nungambakkam','alwarpet','boat club','poes garden','mylapore','adyar','anna nagar','kilpauk','egmore','mount road','express avenue'];
+const GROWTH_AREAS  = ['omr','sholinganallur','perungudi','siruseri','porur','velachery'];
+
+function scoreLeadV2(biz) {
+  const catKey = Object.keys(CAT_INTEL).find(k => biz.category.toLowerCase().includes(k)) || 'default';
+  const intel  = CAT_INTEL[catKey];
+  const price  = document.getElementById('price-tier').value;
+
+  let wtpScore  = 0;
+  let oppScore  = 0;
+  let reasons   = [];
+  let flags     = [];
+
+  wtpScore += intel.wtp * 0.4;
+  reasons.push('Category [' + biz.category + '] base WTP: ' + intel.wtp + '/100 (' + intel.margin + ' margin, ' + intel.tier + '-tier)');
+
+  if (biz.reviews >= 200) {
+    wtpScore += 25; reasons.push(biz.reviews + ' reviews — very established, healthy cash flow');
+    flags.push('established');
+  } else if (biz.reviews >= 80) {
+    wtpScore += 18; reasons.push(biz.reviews + ' reviews — solid business, likely budgets for growth');
+  } else if (biz.reviews >= 30) {
+    wtpScore += 10; reasons.push(biz.reviews + ' reviews — growing, moderate budget');
+  } else {
+    wtpScore += 3; reasons.push(biz.reviews + ' reviews — small/new, may have tight budget');
+    flags.push('small');
+  }
+
+  if (biz.rating >= 4.5) {
+    wtpScore += 15; reasons.push(biz.rating + '★ — quality-conscious owner, will invest in presentation');
+  } else if (biz.rating >= 4.0) {
+    wtpScore += 10; reasons.push(biz.rating + '★ — good reputation, growth-minded');
+  } else if (biz.rating >= 3.5) {
+    wtpScore += 5;  reasons.push(biz.rating + '★ — average, site could help reputation');
+  } else {
+    wtpScore -= 5; reasons.push(biz.rating + '★ — low rating');
+  }
+
+  const areaL = biz.area.toLowerCase();
+  if (PREMIUM_AREAS.some(a => areaL.includes(a))) {
+    wtpScore += 12; reasons.push('Premium area (' + biz.area + ') — higher average customer spend');
+    flags.push('premium-area');
+  } else if (GROWTH_AREAS.some(a => areaL.includes(a))) {
+    wtpScore += 6; reasons.push('Growth corridor (' + biz.area + ') — IT-adjacent area');
+  }
+
+  if (price === 'premium' && biz.reviews < 80 && intel.tier === 'C') {
+    wtpScore -= 20; reasons.push('Premium pricing may be a stretch for this category/size');
+    flags.push('afford-risk');
+  } else if (price === 'premium' && intel.tier === 'A') {
+    wtpScore += 5; reasons.push('Premium pricing fits — high-margin category');
+  } else if (price === 'budget' && intel.tier === 'A') {
+    wtpScore -= 5; reasons.push('Budget pricing undersells your value to this category');
+  }
+
+  wtpScore = Math.min(100, Math.max(0, Math.round(wtpScore)));
+
+  if (!biz.hasWebsite) {
+    oppScore += 40; reasons.push('No website = clear gap, no existing vendor to displace');
+    flags.push('no-website');
+  } else {
+    oppScore += 5; reasons.push('Has website — needs redesign/improvement angle');
+  }
+
+  if (intel.discovery === 'SEARCH') {
+    oppScore += 25; reasons.push('Discovery model: SEARCH — new clients find them via Google');
+  } else if (intel.discovery === 'BOTH') {
+    oppScore += 15; reasons.push('Discovery model: MIXED — both walk-in and search');
+  } else {
+    oppScore += 5; reasons.push('Discovery model: WALK-IN or REFERRAL');
+  }
+
+  oppScore += Math.min(20, Math.round((biz.reviews / 300) * 20));
+  oppScore += 10;
+  oppScore = Math.min(100, Math.max(0, Math.round(oppScore)));
+
+  const composite = Math.round(wtpScore * 0.55 + oppScore * 0.45);
+  let tier, tierReason;
+  if (composite >= 72) { tier = 'HOT';  tierReason = 'High WTP + clear website gap = reach out now'; }
+  else if (composite >= 52) { tier = 'WARM'; tierReason = 'Good prospect, worth a pitch call'; }
+  else if (composite >= 35) { tier = 'COLD'; tierReason = 'Possible but low priority'; }
+  else { tier = 'SKIP'; tierReason = 'Low WTP or low opportunity — skip for now'; }
+
+  const pitch = buildPitchAngle(biz, intel, wtpScore, oppScore, flags);
+
+  return { wtpScore, oppScore, composite, tier, tierReason, reasons, flags, pitch };
+}
+
+function buildPitchAngle(biz, intel, wtp, opp, flags) {
+  return buildFirstMessage(biz);
+}
+
+function getObservation(biz) {
+  if (!biz.hasWebsite) {
+    return 'noticed you do not seem to have a website showing up, while customers in ' + biz.area + ' are likely comparing options online.';
+  }
+  if ((biz.reviews || 0) >= 80) {
+    return 'noticed you already have strong reviews, so people are clearly checking you out before deciding.';
+  }
+  if ((biz.rating || 0) >= 4.5) {
+    return 'noticed the rating is solid, which is a strong trust signal for new customers.';
+  }
+  return 'noticed you show up for ' + biz.category + ' in ' + biz.area + ', but the first impression could be sharper.';
+}
+
+function buildFirstMessage(biz) {
+  const name = biz.name || 'your business';
+  const observation = getObservation(biz);
+  return 'Hi ' + name + ', quick one - I ' + observation + '\n\n' +
+    'Would it be useful if I sent over one simple idea to make more people choose you first?';
+}
+
+function buildReplyFollowup(biz) {
+  const name = biz.name || 'your business';
+  return 'Nice. For ' + name + ', the value would be a simple trust page: photos, reviews, location, services, and a WhatsApp button so people can contact you fast.\n\n' +
+    'I can make a free trial version first, no pressure. If it looks useful, we keep it and make it live.\n\n' +
+    'Want me to mock one up for ' + name + '?';
+}
+
+async function fetchLeads(query) {
+  if (backendOk && backendUrl) {
+    try {
+      const max = 25;
+      const url = backendUrl.replace(/\/$/,'') + '/scrape?q=' + encodeURIComponent(query) + '&max=' + max;
+      const res = await fetch(url, { signal: AbortSignal.timeout(45000) });
+      if (!res.ok) throw new Error('Backend error ' + res.status);
+      const data = await res.json();
+      if (data.results) {
+        log('Backend returned ' + data.results.length + ' real results', 'o');
+        return data.results;
+      }
+    } catch(e) {
+      log('Backend failed: ' + e.message + ' — falling back to simulation', 'w');
+    }
+  }
+  return simulateLeads(query);
+}
+
+function simulateLeads(query) {
+  const parts = query.split(' in ');
+  const cat  = parts[0] || 'Business';
+  const areaFull = parts[1] || 'Chennai';
+  const area = areaFull.replace(' Chennai','');
+
+  const prefixes = ['Sri','Sree','New','Classic','Royal','Star','Prime','Raj','South','Modern','Dr.','The','Chennai'];
+  const bySuffix = {
+    'restaurant':['Kitchen','Biryani House','Tiffin Centre','Mess','Foods','Restaurant','Dhaba','Hotel'],
+    'dental clinic':['Dental Clinic','Dentistry','Smile Dental','Tooth Care','Dental Studio','Dental Care'],
+    'clinic':['Clinic','Health Centre','Medical Centre','Nursing Home','Health Care'],
+    'interior designer':['Interiors','Design Studio','Interior Works','Home Decor','Spaces'],
+    'photography studio':['Photography','Studio','Clicks','Frame Studio','Photos','Images'],
+    'salon':['Salon','Beauty Studio','Hair Lounge','Beauty Parlour','Style Studio'],
+    'gym':['Fitness','Gym','Health Club','Power Gym','Fitness Zone','Body Fit'],
+    'event planner':['Events','Celebrations','Event Management','Occasions','Functions'],
+    'wedding hall':['Wedding Hall','Kalyana Mandapam','Mahal','Convention Centre','Hall'],
+    'catering':['Catering','Caterers','Food Services','Catering Services','Foods'],
+    'yoga studio':['Yoga Centre','Yoga Studio','Wellness Centre','Yoga & Fitness'],
+    'bakery':['Bakery','Cakes & Bakes','Sweet Shop','Confectionery','Bakers'],
+    'boutique':['Boutique','Fashions','Collections','Silks','Textiles'],
+    'real estate agent':['Realty','Properties','Real Estate','Land & Properties'],
+    'architect':['Architects','Design Studio','Architecture','Designs'],
+    'jewellery shop':['Jewellers','Gold House','Jewellery','Jewels'],
+    'spa':['Spa','Wellness Spa','Spa & Salon','Day Spa'],
+    'travel agent':['Travels','Tours','Travel Agency','Holiday','Voyages'],
+    'tuition center':['Academy','Tuitions','Learning Centre','Coaching','Institute'],
+    'driving school':['Driving School','Motor Training','Auto School'],
+    'pharmacy':['Pharmacy','Medical Store','Medicals','Drug Store'],
+    'printing shop':['Printers','Printing Works','Print Studio','Digital Print'],
+    'default':['& Co','Services','Enterprises','Works','Solutions']
+  };
+
+  const catKey = Object.keys(bySuffix).find(k => cat.toLowerCase().includes(k)) || 'default';
+  const suffixes = bySuffix[catKey];
+  const count = 7 + Math.floor(Math.random()*8);
+  const results = [];
+
+  for (let i = 0; i < count; i++) {
+    const pre = prefixes[Math.floor(Math.random()*prefixes.length)];
+    const suf = suffixes[Math.floor(Math.random()*suffixes.length)];
+    const name = pre + ' ' + suf;
+    const reviews = Math.floor(Math.random()*350) + 5;
+    const rating  = Math.round((3.3 + Math.random()*1.7)*10)/10;
+    const hasWeb  = Math.random() > 0.60;
+
+    results.push({
+      name: name + ' - ' + area,
+      category: cat,
+      area: area,
+      rating, reviews, hasWebsite: hasWeb,
+      phone: '+91 ' + (Math.floor(Math.random()*9000000000)+1000000000),
+      address: area + ', Chennai',
+      source: 'simulation',
+      simulated: true
+    });
+  }
+  return results;
+}
+
+async function startScrape() {
+  if (running) return;
+  const areas = [...document.querySelectorAll('#area-chips .chip.on')].map(c=>c.dataset.val);
+  const cats  = [...document.querySelectorAll('#cat-chips .chip.on2')].map(c=>c.dataset.val);
+  if (!areas.length) { log('Pick at least one area!','w'); return; }
+  if (!cats.length)  { log('Pick at least one category!','w'); return; }
+
+  running=true; stopped=false; leads=[]; seen.clear(); chainCount=0; selectedLeadKey='';
+  Object.keys(crmState).forEach(k => delete crmState[k]);
+  closeOutreach();
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('stop-btn').style.display='block';
+  document.getElementById('log-area').innerHTML='';
+  document.getElementById('thoughts-area').innerHTML='';
+  document.getElementById('top-area').innerHTML='';
+  document.getElementById('insights-area').innerHTML='<div class="ic full" style="text-align:center"><div style="color:var(--dim);font-family:JetBrains Mono,monospace;font-size:10px;padding:40px">Running...</div></div>';
+  document.getElementById('leads-wrap').innerHTML='<div class="empty-state"><div class="empty-icon" style="font-size:24px">&#8987;</div><div class="empty-text">Scraping...</div></div>';
+  updateStats();
+
+  const delay   = parseInt(document.getElementById('delay').value);
+  const minRev  = parseInt(document.getElementById('min-rev').value);
+  const minRat  = parseFloat(document.getElementById('min-rat').value);
+  const minWTP  = parseInt(document.getElementById('min-wtp').value);
+  const skipChain = document.getElementById('tog-chain').checked;
+  const dedup   = document.getElementById('tog-dedup').checked;
+  const total   = areas.length * cats.length;
+  let done = 0;
+
+  log('LeadHunter v2 — ' + areas.length + ' areas x ' + cats.length + ' categories (' + total + ' searches)', 'i', 'h');
+  log('Mode: ' + (backendOk ? 'LIVE (Playwright)' : 'SIMULATION'), 'i', backendOk?'h':'f');
+  log('WTP engine: India-specific scoring | Chain detector: ' + (skipChain?'ON':'OFF') + ' | Min WTP: ' + minWTP, 'i', 'd');
+
+  for (const area of areas) {
+    for (const cat of cats) {
+      if (stopped) break;
+      const query = cat + ' in ' + area + ' Chennai';
+      log('Scraping: "' + query + '"', 'r');
+      setProgress(done/total*100, cat + ' · ' + area);
+
+      let results = await fetchLeads(query);
+
+      if (skipChain) {
+        const before = results.length;
+        results = results.filter(b => {
+          if (isChain(b.name)) { chainCount++; return false; }
+          return true;
+        });
+        if (results.length < before) log('Skipped ' + (before-results.length) + ' chain(s)', 'c', 'd');
+      }
+
+      results = results.filter(b => b.reviews >= minRev && b.rating >= minRat);
+
+      if (dedup) {
+        results = results.filter(b => {
+          const k = b.name.toLowerCase().replace(/[\s\-–,\.]/g,'').substring(0,18);
+          if (seen.has(k)) return false;
+          seen.add(k); return true;
+        });
+      }
+
+      log(results.length + ' businesses after filters', 'o', 'd');
+
+      for (const biz of results) {
+        if (stopped) break;
+        const scored = scoreLeadV2(biz);
+        Object.assign(biz, scored);
+
+        if (scored.composite >= minWTP) {
+          leads.push(biz);
+          log(
+            (scored.tier==='HOT'?'[HOT]':scored.tier==='WARM'?'[WARM]':'[·]') + ' [WTP:' + scored.wtpScore + ' OPP:' + scored.oppScore + '] ' + biz.name,
+            's',
+            scored.tier==='HOT'?'f':scored.tier==='WARM'?'h':'d'
+          );
+          addThoughtCard(biz);
+        }
+      }
+
+      sortLeads();
+      updateStats();
+      renderLeads();
+      saveSession();
+
+      done++;
+      if (delay > 0 && !stopped) await sleep(delay);
+    }
+    if (stopped) break;
+  }
+
+  running=false;
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('stop-btn').style.display='none';
+  setProgress(100,'Complete');
+
+  if (!stopped) {
+    log('Done — ' + leads.length + ' leads, ' + leads.filter(l=>l.tier==='HOT').length + ' HOT, ' + chainCount + ' chains skipped', 'o', 'h');
+    buildInsights();
+    renderTopLeads();
+    switchTab('leads');
+  } else {
+    log('Stopped — ' + leads.length + ' leads captured', 'w');
+  }
+  renderLeads();
+  saveSession();
+}
+
+function stopScrape() { stopped=true; running=false; }
+
+function sortLeads() {
+  const nowebFirst = document.getElementById('tog-noweb').checked;
+  leads.sort((a,b) => {
+    if (nowebFirst) {
+      if (!a.hasWebsite && b.hasWebsite) return -1;
+      if (a.hasWebsite && !b.hasWebsite) return 1;
+    }
+    return b.composite - a.composite;
+  });
+}
+
+function renderLeads() {
+  const wrap   = document.getElementById('leads-wrap');
+  const search = (document.getElementById('lead-search')?.value||'').toLowerCase();
+  const fTier  = document.getElementById('f-tier')?.value||'';
+  const fWeb   = document.getElementById('f-web')?.value||'';
+  const fCRM   = document.getElementById('f-crm')?.value||'';
+  const fSort  = document.getElementById('f-sort')?.value||'wtp';
+
+  let list = leads.filter(l => {
+    if (search && !l.name.toLowerCase().includes(search) && !l.area.toLowerCase().includes(search) && !l.category.toLowerCase().includes(search)) return false;
+    if (fTier && l.tier !== fTier) return false;
+    if (fWeb==='no' && l.hasWebsite) return false;
+    if (fWeb==='yes' && !l.hasWebsite) return false;
+    const crm = (crmState[leadKey(l)]?.status)||'new';
+    if (fCRM && crm !== fCRM) return false;
+    return true;
+  });
+
+  const sortMap = { wtp:'wtpScore', opp:'oppScore', reviews:'reviews', rating:'rating' };
+  list = [...list].sort((a,b) => b[sortMap[fSort]||'wtpScore'] - a[sortMap[fSort]||'wtpScore']);
+
+  if (!list.length) {
+    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">&#128269;</div><div class="empty-text">No matching leads</div></div>';
+    return;
+  }
+
+  const tierBadge = t => {
+    const m={HOT:'b-hot',WARM:'b-warm',COLD:'b-cold',SKIP:'b-skip'};
+    const i={HOT:'HOT',WARM:'WARM',COLD:'COLD',SKIP:'SKIP'};
+    return '<span class="badge ' + (m[t]||'b-cold') + '">' + (i[t]||t) + '</span>';
+  };
+  const sc = s => s>=72?'s90':s>=52?'s70':s>=35?'s50':'s0';
+  const bc = s => s>=72?'var(--acc)':s>=52?'var(--acc2)':s>=35?'var(--sub)':'var(--dim)';
+  const stars = r => '★'.repeat(Math.floor(r)) + (r%1>=0.5?'½':'');
+
+  wrap.innerHTML = '<table><thead><tr>' +
+    '<th>Business</th><th>Rating</th><th>Website</th>' +
+    '<th onclick="sortBy(\'wtpScore\')">WTP ↕</th>' +
+    '<th onclick="sortBy(\'oppScore\')">OPP ↕</th>' +
+    '<th>Tier</th><th>Pitch Angle</th><th>CRM Status</th>' +
+    '</tr></thead><tbody>' +
+    list.map((b,i) => {
+      const key = leadKey(b);
+      const crm = crmState[key] || { status:'new', note:'' };
+      const safeKey = encodeURIComponent(key);
+      return '<tr class="lead-row" onclick="openOutreach(decodeURIComponent(\'' + safeKey + '\'))">' +
+        '<td><div class="biz-name">' + escapeHtml(b.name) + (b.simulated?'<span style="font-family:JetBrains Mono,monospace;font-size:7px;color:var(--dim);margin-left:5px">[SIM]</span>':'') + '</div>' +
+        '<div class="biz-cat">' + escapeHtml(b.category) + ' · ' + escapeHtml(b.area) + '</div></td>' +
+        '<td><span class="stars">' + stars(b.rating) + '</span><span class="rct">(' + b.reviews + ')</span></td>' +
+        '<td>' + (b.hasWebsite?'<span class="has-web">Has site</span>':'<span class="no-web">✓ No site</span>') + '</td>' +
+        '<td><div class="dual-score"><div><span class="snum ' + sc(b.wtpScore||0) + '">' + (b.wtpScore||0) + '</span>' +
+        '<div class="bbar"><div class="bfill" style="width:' + (b.wtpScore||0) + '%;background:' + bc(b.wtpScore||0) + '"></div></div>' +
+        '<div class="slbl">WTP</div></div></div></td>' +
+        '<td><div class="dual-score"><div><span class="snum ' + sc(b.oppScore||0) + '">' + (b.oppScore||0) + '</span>' +
+        '<div class="bbar"><div class="bfill" style="width:' + (b.oppScore||0) + '%;background:' + bc(b.oppScore||0) + '"></div></div>' +
+        '<div class="slbl">OPP</div></div></div></td>' +
+        '<td>' + tierBadge(b.tier||'COLD') + '</td>' +
+        '<td class="pitch-cell">' + escapeHtml(b.pitch||'').substring(0,140) + ((b.pitch||'').length>140?'…':'') + '</td>' +
+        '<td style="min-width:110px">' +
+        '<select class="crm-sel ' + crm.status + '" onclick="event.stopPropagation()" onchange="setCRM(decodeURIComponent(\'' + safeKey + '\'),\'status\',this.value);this.className=\'crm-sel \'+this.value">' +
+        '<option value="new"' + (crm.status==='new'?' selected':'') + '>New</option>' +
+        '<option value="contacted"' + (crm.status==='contacted'?' selected':'') + '>Contacted</option>' +
+        '<option value="interested"' + (crm.status==='interested'?' selected':'') + '>Interested</option>' +
+        '<option value="rejected"' + (crm.status==='rejected'?' selected':'') + '>Rejected</option>' +
+        '<option value="followup"' + (crm.status==='followup'?' selected':'') + '>Follow Up</option>' +
+        '</select>' +
+        '<input class="note-inp" value="' + escapeAttr(crm.note||'') + '" placeholder="Add note..." onclick="event.stopPropagation()" onblur="setCRM(decodeURIComponent(\'' + safeKey + '\'),\'note\',this.value)">' +
+        '</td></tr>';
+    }).join('') +
+    '</tbody></table>';
+}
+
+function setCRM(name, field, val) {
+  if (!crmState[name]) crmState[name] = { status:'new', note:'' };
+  crmState[name][field] = val;
+  saveSession();
+}
+
+function findLeadByKey(key) {
+  return leads.find(l => leadKey(l) === key);
+}
+
+function openOutreach(key) {
+  const lead = findLeadByKey(key);
+  if (!lead) return;
+  selectedLeadKey = key;
+  if (!lead.firstMessage) lead.firstMessage = buildFirstMessage(lead);
+  if (!lead.followupMessage) lead.followupMessage = buildReplyFollowup(lead);
+
+  document.getElementById('outreach-name').textContent = lead.name;
+  document.getElementById('outreach-meta').textContent = lead.category + ' · ' + lead.area + ' · ' + (lead.hasWebsite ? 'has website' : 'no website');
+  document.getElementById('outreach-phone').value = lead.phone || '';
+  document.getElementById('outreach-message').value = lead.firstMessage;
+  document.getElementById('followup-message').textContent = lead.followupMessage;
+  document.getElementById('outreach-panel').classList.add('open');
+  updateWhatsAppLink();
+  saveSession();
+}
+
+function closeOutreach() {
+  document.getElementById('outreach-panel').classList.remove('open');
+}
+
+function updateSelectedLeadPhone(value) {
+  const lead = findLeadByKey(selectedLeadKey);
+  if (!lead) return;
+  lead.phone = value;
+  updateWhatsAppLink();
+  saveSession();
+}
+
+function updateWhatsAppLink() {
+  const lead = findLeadByKey(selectedLeadKey);
+  if (lead) lead.firstMessage = document.getElementById('outreach-message').value;
+  const phone = normalizePhone(document.getElementById('outreach-phone').value);
+  const message = document.getElementById('outreach-message').value.trim();
+  const link = document.getElementById('wa-link');
+  if (!phone || !message) {
+    link.href = '#';
+    link.classList.add('disabled');
+    link.textContent = phone ? 'Add message' : 'Add WhatsApp number';
+    return;
+  }
+  link.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+  link.classList.remove('disabled');
+  link.textContent = 'Open in WhatsApp';
+  saveSession();
+}
+
+function copyMessage() {
+  const message = document.getElementById('outreach-message').value.trim();
+  if (!message) return;
+  navigator.clipboard.writeText(message).then(() => {
+    log('Copied first message for ' + (findLeadByKey(selectedLeadKey)?.name || 'lead'), 'o', 'h');
+  });
+}
+
+let sortDir = -1;
+function sortBy(field) {
+  sortDir *= -1;
+  leads.sort((a,b) => ((a[field]||0)-(b[field]||0))*sortDir);
+  renderLeads();
+}
+
+function addThoughtCard(biz) {
+  const area = document.getElementById('thoughts-area');
+  if (area.querySelector('[data-empty]')) area.innerHTML='';
+  const cls = biz.tier==='HOT'?'hot':biz.tier==='WARM'?'warm':biz.tier==='SKIP'?'skip':'';
+  const sc = s => s>=72?'var(--acc)':s>=52?'var(--acc2)':'var(--sub)';
+  const div = document.createElement('div');
+  div.className = 'tc ' + cls;
+  div.innerHTML =
+    '<div class="tc-head">' +
+    '<div class="tc-name">' + biz.name + '</div>' +
+    '<div class="tc-scores">' +
+    '<div class="tc-score"><div class="tc-sn" style="color:' + sc(biz.wtpScore) + '">' + biz.wtpScore + '</div><div class="tc-sl">WTP</div></div>' +
+    '<div class="tc-score"><div class="tc-sn" style="color:' + sc(biz.oppScore) + '">' + biz.oppScore + '</div><div class="tc-sl">OPP</div></div>' +
+    '</div></div>' +
+    '<div class="tc-reason">' + (biz.reasons||[]).slice(0,3).join('<br>') + '</div>' +
+    (biz.pitch ? '<div class="tc-pitch">' + biz.pitch.substring(0,180) + (biz.pitch.length>180?'…':'') + '</div>' : '') +
+    '<div class="tc-meta">' +
+    '<span>' + biz.area + '</span><span>' + biz.category + '</span>' +
+    '<span>' + biz.rating + '★ (' + biz.reviews + ')</span>' +
+    '<span style="color:' + (biz.tier==='HOT'?'var(--acc)':biz.tier==='WARM'?'var(--acc2)':'var(--dim)') + '">' + biz.tier + '</span>' +
+    (biz.hasWebsite?'':'<span style="color:var(--acc)">No site ✓</span>') +
+    '</div>';
+  area.prepend(div);
+}
+
+function renderTopLeads() {
+  const area = document.getElementById('top-area');
+  const top  = leads.filter(l=>l.tier==='HOT').slice(0,10);
+  if (!top.length) { area.innerHTML='<div style="color:var(--dim);text-align:center;padding:40px;font-family:JetBrains Mono,monospace;font-size:10px">No HOT leads found</div>'; return; }
+  area.innerHTML = top.map(b =>
+    '<div class="tc hot">' +
+    '<div class="tc-head"><div class="tc-name">' + b.name + '</div><span class="badge b-hot">HOT ' + b.composite + '</span></div>' +
+    '<div style="font-size:11px;color:var(--sub);margin-top:4px">' + b.area + ' · ' + b.category + ' · ' + b.rating + '★ (' + b.reviews + ' reviews)</div>' +
+    '<div style="margin-top:4px;font-size:11px">' + (b.hasWebsite?'<span style="color:var(--red)">Has website</span>':'<span style="color:var(--acc)">No website ✓</span>') + '</div>' +
+    (b.pitch?'<div class="tc-pitch" style="margin-top:8px">' + b.pitch.substring(0,160) + '…</div>':'') +
+    '</div>'
+  ).join('');
+}
+
+function buildInsights() {
+  const area = document.getElementById('insights-area');
+  const hot  = leads.filter(l=>l.tier==='HOT');
+  const warm = leads.filter(l=>l.tier==='WARM');
+  const noWeb = leads.filter(l=>!l.hasWebsite);
+  const avgWTP = leads.length ? Math.round(leads.reduce((s,l)=>s+(l.wtpScore||0),0)/leads.length) : 0;
+  const avgOpp = leads.length ? Math.round(leads.reduce((s,l)=>s+(l.oppScore||0),0)/leads.length) : 0;
+
+  const catCounts={};
+  leads.forEach(l=>{catCounts[l.category]=(catCounts[l.category]||0)+1});
+  const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+  const areaCounts={};
+  leads.forEach(l=>{areaCounts[l.area]=(areaCounts[l.area]||0)+1});
+  const topAreas = Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+  const p1 = leads.filter(l=>!l.hasWebsite&&l.reviews>=80);
+  const p2 = leads.filter(l=>!l.hasWebsite&&l.rating>=4.5);
+  const p3 = leads.filter(l=>l.flags&&l.flags.includes('premium-area'));
+
+  area.innerHTML =
+    '<div class="ic"><div class="ic-title">Campaign Overview</div><div class="ic-body">' +
+    '<strong class="hi">' + leads.length + '</strong> leads scored · <strong class="hi">' + hot.length + ' HOT</strong> · <strong style="color:var(--acc2)">' + warm.length + ' WARM</strong><br>' +
+    '<strong class="hi">' + noWeb.length + '</strong> without a website (your best pitch)<br>' +
+    '<strong>' + chainCount + '</strong> chains auto-skipped<br>' +
+    'Avg WTP score: <strong class="hi">' + avgWTP + '/100</strong> · Avg Opportunity: <strong class="hi">' + avgOpp + '/100</strong>' +
+    '</div></div>' +
+    '<div class="ic"><div class="ic-title">Top Categories</div><div class="ic-body">' +
+    topCats.map(([c,n])=>'<strong>' + c + '</strong>: ' + n + ' leads<br>').join('') +
+    '</div></div>' +
+    '<div class="ic"><div class="ic-title">Top Areas</div><div class="ic-body">' +
+    topAreas.map(([a,n])=>'<strong>' + a + '</strong>: ' + n + ' leads<br>').join('') +
+    '</div></div>' +
+    '<div class="ic"><div class="ic-title">Priority Segments</div><div class="ic-body">' +
+    '<strong class="hi">' + p1.length + '</strong> established (80+ reviews) + no website<br>' +
+    '<strong class="hi">' + p2.length + '</strong> top-rated (4.5★+) + no website<br>' +
+    '<strong class="hi">' + p3.length + '</strong> in premium areas (Alwarpet, Adyar etc.)' +
+    '</div></div>' +
+    '<div class="ic full"><div class="ic-title">India-Specific Outreach Tips</div><div class="ic-body">' +
+    '<strong>Open with ROI, not features.</strong> "One new patient pays back your site in a day" lands better than "mobile-friendly responsive design."<br><br>' +
+    '<strong>WhatsApp first, email never.</strong> Cold email open rates in Chennai are under 5%. WhatsApp with a voice note intro converts 3x better.<br><br>' +
+    '<strong>Show a competitor\'s site.</strong> Find a competitor in their category who has a site, show it. Triggers FOMO immediately.<br><br>' +
+    '<strong>Monthly installment framing.</strong> ₹20,000 sounds big. "₹1,700/month over a year" doesn\'t.<br><br>' +
+    '<strong>Proof matters more than pitch.</strong> Show 2-3 sites you\'ve built for similar businesses in Chennai before anything else.' +
+    '</div></div>';
+}
+
+function updateStats() {
+  document.getElementById('s-found').textContent = leads.length;
+  document.getElementById('s-hot').textContent   = leads.filter(l=>l.tier==='HOT').length;
+  document.getElementById('s-noweb').textContent  = leads.filter(l=>!l.hasWebsite).length;
+  document.getElementById('s-chain').textContent  = chainCount;
+}
+
+function setProgress(pct, label) {
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent  = Math.round(pct)+'%';
+  document.getElementById('prog-label').textContent= label;
+}
+
+function backendChanged() {
+  backendUrl = document.getElementById('backend-url').value.trim();
+  backendOk  = false;
+  document.getElementById('bb-status').textContent = 'Not tested yet';
+  document.getElementById('bb-status').className   = 'bb-status';
+}
+
+async function testBackend() {
+  const url = document.getElementById('backend-url').value.trim();
+  if (!url) { alert('Enter a backend URL first'); return; }
+  const el = document.getElementById('bb-status');
+  el.textContent = 'Testing...'; el.className='bb-status';
+  try {
+    const res = await fetch(url.replace(/\/$/,'') + '/ping', { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      backendUrl = url; backendOk = true;
+      el.textContent = '✓ Connected — live Playwright scraping active';
+      el.className = 'bb-status ok';
+    } else throw new Error('Bad response');
+  } catch(e) {
+    backendOk = false;
+    el.textContent = '✗ Connection failed — using simulation';
+    el.className = 'bb-status fail';
+  }
+}
+
+function rv(id, val) { document.getElementById(id).textContent = val; }
+function sleep(ms)    { return new Promise(r=>setTimeout(r,ms)); }
+
+function log(msg, type, cls) {
+  type = type||'i'; cls = cls||'';
+  const area = document.getElementById('log-area');
+  const now  = new Date().toLocaleTimeString('en-IN',{hour12:false});
+  const tagMap = {i:'lk-i',a:'lk-a',s:'lk-s',o:'lk-o',w:'lk-w',r:'lk-r',c:'lk-c'};
+  const tagLbl = {i:'INFO',a:'AGENT',s:'SCORE',o:'OK',w:'WARN',r:'SCRAPE',c:'CHAIN'};
+  const div = document.createElement('div');
+  div.className='ll';
+  div.innerHTML='<span class="lt">'+now+'</span><span class="lk '+(tagMap[type]||'lk-i')+'">'+(tagLbl[type]||type)+'</span><span class="lm '+(cls||'')+'">'+msg+'</span>';
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+
+function switchTab(name) {
+  const names=['log','leads','agent','insights','backend'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.toggle('active',tc.id==='tab-'+name));
+}
+
+function addChip(type) {
+  const isArea = type==='area';
+  const inp = document.getElementById(isArea?'custom-area':'custom-cat');
+  const val = inp.value.trim(); if (!val) return;
+  const chip = document.createElement('div');
+  chip.className = isArea?'chip on':'chip on2';
+  chip.dataset.val = val.toLowerCase();
+  chip.textContent = val;
+  chip.onclick = function() {
+    if (isArea) this.classList.toggle('on');
+    else this.classList.toggle('on2');
+  };
+  document.getElementById(isArea?'area-chips':'cat-chips').appendChild(chip);
+  inp.value='';
+  saveSession();
+}
+
+function getSelectedChipValues(selector, activeClass) {
+  return [...document.querySelectorAll(selector + ' .chip.' + activeClass)].map(c => c.dataset.val || c.textContent.trim());
+}
+
+function setSelectedChipValues(selector, activeClass, values) {
+  const wanted = new Set((values || []).map(v => String(v).toLowerCase()));
+  document.querySelectorAll(selector + ' .chip').forEach(chip => {
+    const val = String(chip.dataset.val || chip.textContent).toLowerCase();
+    chip.classList.toggle(activeClass, wanted.has(val));
+  });
+}
+
+function collectSession() {
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    leads,
+    crmState,
+    chainCount,
+    selectedLeadKey,
+    filters: {
+      areas: getSelectedChipValues('#area-chips', 'on'),
+      categories: getSelectedChipValues('#cat-chips', 'on2'),
+      minReviews: document.getElementById('min-rev')?.value,
+      minRating: document.getElementById('min-rat')?.value,
+      minWtp: document.getElementById('min-wtp')?.value,
+      delay: document.getElementById('delay')?.value,
+      priceTier: document.getElementById('price-tier')?.value,
+      search: document.getElementById('lead-search')?.value || '',
+      tier: document.getElementById('f-tier')?.value || '',
+      web: document.getElementById('f-web')?.value || '',
+      crm: document.getElementById('f-crm')?.value || '',
+      sort: document.getElementById('f-sort')?.value || 'wtp',
+      skipChain: document.getElementById('tog-chain')?.checked,
+      dedup: document.getElementById('tog-dedup')?.checked,
+      noWebFirst: document.getElementById('tog-noweb')?.checked,
+      backendUrl
+    }
+  };
+}
+
+function saveSession() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(collectSession()));
+    } catch (e) {
+      console.warn('LeadHunter session save failed', e);
+    }
+  }, 120);
+}
+
+function applySession(session) {
+  if (!session || !Array.isArray(session.leads)) return false;
+  leads = session.leads.map(normalizeImportedLead);
+  Object.keys(crmState).forEach(k => delete crmState[k]);
+  Object.entries(session.crmState || {}).forEach(([k,v]) => crmState[k] = v);
+  chainCount = Number(session.chainCount || 0);
+  selectedLeadKey = session.selectedLeadKey || '';
+
+  const f = session.filters || {};
+  setSelectedChipValues('#area-chips', 'on', f.areas);
+  setSelectedChipValues('#cat-chips', 'on2', f.categories);
+  if (f.minReviews) document.getElementById('min-rev').value = f.minReviews;
+  if (f.minRating) document.getElementById('min-rat').value = f.minRating;
+  if (f.minWtp) document.getElementById('min-wtp').value = f.minWtp;
+  if (f.delay) document.getElementById('delay').value = f.delay;
+  if (f.priceTier) document.getElementById('price-tier').value = f.priceTier;
+  if (document.getElementById('lead-search')) document.getElementById('lead-search').value = f.search || '';
+  if (document.getElementById('f-tier')) document.getElementById('f-tier').value = f.tier || '';
+  if (document.getElementById('f-web')) document.getElementById('f-web').value = f.web || '';
+  if (document.getElementById('f-crm')) document.getElementById('f-crm').value = f.crm || '';
+  if (document.getElementById('f-sort')) document.getElementById('f-sort').value = f.sort || 'wtp';
+  if (typeof f.skipChain === 'boolean') document.getElementById('tog-chain').checked = f.skipChain;
+  if (typeof f.dedup === 'boolean') document.getElementById('tog-dedup').checked = f.dedup;
+  if (typeof f.noWebFirst === 'boolean') document.getElementById('tog-noweb').checked = f.noWebFirst;
+  if (f.backendUrl) {
+    backendUrl = f.backendUrl;
+    document.getElementById('backend-url').value = f.backendUrl;
+  }
+
+  updateStats();
+  renderLeads();
+  buildInsights();
+  renderTopLeads();
+  if (selectedLeadKey && findLeadByKey(selectedLeadKey)) openOutreach(selectedLeadKey);
+  return true;
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    if (applySession(JSON.parse(raw))) {
+      log('Restored saved browser session with ' + leads.length + ' leads', 'o', 'h');
+      if (leads.length) switchTab('leads');
+    }
+  } catch (e) {
+    console.warn('LeadHunter session load failed', e);
+  }
+}
+
+function clearSavedSession() {
+  localStorage.removeItem(SESSION_KEY);
+  log('Saved browser session cleared', 'o', 'h');
+}
+
+function normalizeImportedLead(lead) {
+  const normalized = {
+    name: lead.name || lead.Name || '',
+    category: lead.category || lead.Category || '',
+    area: lead.area || lead.Area || '',
+    rating: Number(lead.rating ?? lead.Rating ?? 0),
+    reviews: Number(lead.reviews ?? lead.Reviews ?? 0),
+    hasWebsite: String(lead.hasWebsite ?? lead['Has Website'] ?? 'No').toLowerCase().startsWith('y') || lead.hasWebsite === true,
+    phone: lead.phone || lead.Phone || '',
+    address: lead.address || lead.Address || '',
+    source: lead.source || lead.Source || 'imported',
+    simulated: lead.simulated || false,
+    wtpScore: Number(lead.wtpScore ?? lead['WTP Score'] ?? 0),
+    oppScore: Number(lead.oppScore ?? lead['Opp Score'] ?? lead.Opportunity ?? 0),
+    tier: lead.tier || lead.Tier || 'COLD',
+    pitch: lead.pitch || lead.Pitch || lead['Pitch Angle'] || '',
+    firstMessage: lead.firstMessage || lead['Message 1'] || '',
+    followupMessage: lead.followupMessage || lead['Follow Up'] || '',
+    composite: Number(lead.composite ?? lead.Composite ?? 0)
+  };
+  if (!normalized.pitch) normalized.pitch = buildFirstMessage(normalized);
+  if (!normalized.firstMessage) normalized.firstMessage = buildFirstMessage(normalized);
+  if (!normalized.followupMessage) normalized.followupMessage = buildReplyFollowup(normalized);
+  if (!normalized.composite) normalized.composite = Math.round(((normalized.wtpScore || 0) * .55) + ((normalized.oppScore || 0) * .45));
+  return normalized;
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], next = text[i + 1];
+    if (ch === '"' && quoted && next === '"') { cell += '"'; i++; continue; }
+    if (ch === '"') { quoted = !quoted; continue; }
+    if (ch === ',' && !quoted) { row.push(cell); cell = ''; continue; }
+    if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = ''; continue;
+    }
+    cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim()));
+}
+
+function importCSV(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCSV(String(reader.result || ''));
+    if (rows.length < 2) { alert('CSV has no lead rows'); return; }
+    const headers = rows[0].map(h => h.trim());
+    const imported = rows.slice(1).map(row => {
+      const item = {};
+      headers.forEach((h, i) => item[h] = row[i] || '');
+      return normalizeImportedLead(item);
+    }).filter(l => l.name);
+
+    leads = imported;
+    Object.keys(crmState).forEach(k => delete crmState[k]);
+    rows.slice(1).forEach((row, idx) => {
+      const item = {};
+      headers.forEach((h, i) => item[h] = row[i] || '');
+      const key = leadKey(imported[idx] || {});
+      if (key !== '||') crmState[key] = { status: item['CRM Status'] || 'new', note: item.Note || '' };
+    });
+    chainCount = 0;
+    selectedLeadKey = '';
+    closeOutreach();
+    sortLeads();
+    updateStats();
+    renderLeads();
+    buildInsights();
+    renderTopLeads();
+    saveSession();
+    switchTab('leads');
+    log('Imported ' + leads.length + ' leads from CSV and saved the session', 'o', 'h');
+  };
+  reader.readAsText(file);
+}
+
+function exportCSV() {
+  if (!leads.length) { alert('No leads to export'); return; }
+  const h = ['Name','Category','Area','Rating','Reviews','Has Website','Phone','Address','WTP Score','Opp Score','Tier','Pitch','Message 1','Follow Up','CRM Status','Note','Source'];
+  const rows = leads.map(l => {
+    const crm = crmState[leadKey(l)] || { status:'new', note:'' };
+    return [
+      l.name,l.category,l.area,l.rating,l.reviews,l.hasWebsite?'Yes':'No',
+      l.phone || '', l.address || '', l.wtpScore || 0, l.oppScore || 0, l.tier || '',
+      l.pitch || buildFirstMessage(l),
+      l.firstMessage || buildFirstMessage(l),
+      l.followupMessage || buildReplyFollowup(l),
+      crm.status, crm.note || '', l.source || ''
+    ].map(csvCell).join(',');
+  });
+  const csv = [h.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'leadhunter-chennai-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+// Initialize chip toggles
+document.querySelectorAll('#area-chips .chip').forEach(c => {
+  c.addEventListener('click', () => { c.classList.toggle('on'); saveSession(); });
+});
+document.querySelectorAll('#cat-chips .chip').forEach(c => {
+  c.addEventListener('click', () => { c.classList.toggle('on2'); saveSession(); });
+});
+
+['min-rev','min-rat','min-wtp','delay','price-tier','lead-search','f-tier','f-web','f-crm','f-sort','tog-chain','tog-dedup','tog-noweb'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveSession);
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.addEventListener('input', saveSession);
+});
+
+// Auto-connect to built-in backend on load
+async function autoConnect() {
+  const builtinUrl = window.location.origin + '/api';
+  document.getElementById('backend-url').value = builtinUrl;
+  backendUrl = builtinUrl;
+  const el = document.getElementById('bb-status');
+  el.textContent = 'Testing built-in backend...';
+  try {
+    const res = await fetch(builtinUrl + '/ping', { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      backendOk = true;
+      el.textContent = '✓ Built-in backend connected — live scraping ready';
+      el.className = 'bb-status ok';
+      log('Backend connected at ' + builtinUrl, 'o', 'h');
+      log('Playwright scraping is active — real Google Maps data', 'i', 'd');
+    } else throw new Error();
+  } catch(e) {
+    el.textContent = '◌ Backend starting up — using simulation for now';
+    el.className = 'bb-status';
+    log('Backend not ready yet — using simulation mode', 'w');
+    log('Click TEST in the backend box to retry connection', 'i', 'd');
+  }
+}
+
+loadSession();
+autoConnect();
+</script>
+</body>
 </html>
