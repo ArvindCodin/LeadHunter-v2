@@ -341,6 +341,10 @@ tr.lead-row{cursor:pointer}
       <div class="tinfo"><div class="tlabel">Dedup across searches</div><div class="tdesc">Skip same business found twice</div></div>
       <label class="tog"><input type="checkbox" id="tog-dedup" checked><div class="tog-track"></div></label>
     </div>
+    <div class="trow">
+      <div class="tinfo"><div class="tlabel">Demo mode</div><div class="tdesc">Use sample leads only when testing the UI</div></div>
+      <label class="tog"><input type="checkbox" id="tog-demo"><div class="tog-track"></div></label>
+    </div>
   </div>
 
   <div class="panel">
@@ -373,7 +377,7 @@ tr.lead-row{cursor:pointer}
       <input type="text" id="backend-url" placeholder="https://your-backend.replit.app/api" oninput="backendChanged()">
       <button class="bb-btn" onclick="testBackend()">TEST</button>
     </div>
-    <div class="bb-status" id="bb-status">Checking built-in backend...</div>
+    <div class="bb-status" id="bb-status">Real scraping requires a connected backend</div>
   </div>
 
 </div>
@@ -470,7 +474,7 @@ tr.lead-row{cursor:pointer}
         <div class="code-block">GET /api/scrape?q=dental+clinic+in+Anna+Nagar+Chennai&amp;max=20
 
 Response: { "results": [...real businesses...], "count": 14 }</div>
-        <p style="margin-top:10px">The Playwright scraper runs headless Chromium on the server, bypassing Google Maps CORS restrictions. When no backend is connected, the app uses realistic simulation.</p>
+        <p style="margin-top:10px">The Playwright scraper runs headless Chromium on the server, bypassing Google Maps CORS restrictions. When no backend is connected, LeadHunter stops instead of inventing businesses or phone numbers.</p>
       </div>
       <div class="be-card">
         <h3>External Backend (Optional)</h3>
@@ -752,10 +756,16 @@ async function fetchLeads(query) {
         return data.results;
       }
     } catch(e) {
-      log('Backend failed: ' + e.message + ' — falling back to simulation', 'w');
+      backendOk = false;
+      log('Backend failed: ' + e.message + ' — real scrape stopped so no fake leads are added', 'w');
+      throw e;
     }
   }
-  return simulateLeads(query);
+  if (document.getElementById('tog-demo')?.checked) {
+    log('Demo mode is ON — sample leads only, phone numbers intentionally blank', 'w');
+    return simulateLeads(query);
+  }
+  throw new Error('No real scraping backend connected. Add a backend URL and click TEST, or turn on Demo mode for UI testing.');
 }
 
 function simulateLeads(query) {
@@ -809,9 +819,9 @@ function simulateLeads(query) {
       category: cat,
       area: area,
       rating, reviews, hasWebsite: hasWeb,
-      phone: '+91 ' + (Math.floor(Math.random()*9000000000)+1000000000),
+      phone: '',
       address: area + ', Chennai',
-      source: 'simulation',
+      source: 'demo',
       simulated: true
     });
   }
@@ -825,6 +835,22 @@ async function startScrape() {
   if (!areas.length) { log('Pick at least one area!','w'); return; }
   if (!cats.length)  { log('Pick at least one category!','w'); return; }
 
+  const delay   = parseInt(document.getElementById('delay').value);
+  const minRev  = parseInt(document.getElementById('min-rev').value);
+  const minRat  = parseFloat(document.getElementById('min-rat').value);
+  const minWTP  = parseInt(document.getElementById('min-wtp').value);
+  const skipChain = document.getElementById('tog-chain').checked;
+  const dedup   = document.getElementById('tog-dedup').checked;
+  const demoMode = document.getElementById('tog-demo').checked;
+  const total   = areas.length * cats.length;
+  let done = 0;
+
+  if (!backendOk && !demoMode) {
+    log('No real backend connected. Click TEST after adding a backend URL, or turn on Demo mode for sample UI data.', 'w');
+    alert('No real scraping backend connected. This app will not generate fake businesses or fake WhatsApp numbers anymore.');
+    return;
+  }
+
   running=true; stopped=false; leads=[]; seen.clear(); chainCount=0; selectedLeadKey='';
   Object.keys(crmState).forEach(k => delete crmState[k]);
   closeOutreach();
@@ -837,17 +863,8 @@ async function startScrape() {
   document.getElementById('leads-wrap').innerHTML='<div class="empty-state"><div class="empty-icon" style="font-size:24px">&#8987;</div><div class="empty-text">Scraping...</div></div>';
   updateStats();
 
-  const delay   = parseInt(document.getElementById('delay').value);
-  const minRev  = parseInt(document.getElementById('min-rev').value);
-  const minRat  = parseFloat(document.getElementById('min-rat').value);
-  const minWTP  = parseInt(document.getElementById('min-wtp').value);
-  const skipChain = document.getElementById('tog-chain').checked;
-  const dedup   = document.getElementById('tog-dedup').checked;
-  const total   = areas.length * cats.length;
-  let done = 0;
-
   log('LeadHunter v2 — ' + areas.length + ' areas x ' + cats.length + ' categories (' + total + ' searches)', 'i', 'h');
-  log('Mode: ' + (backendOk ? 'LIVE (Playwright)' : 'SIMULATION'), 'i', backendOk?'h':'f');
+  log('Mode: ' + (backendOk ? 'LIVE (real backend)' : 'DEMO SAMPLE DATA'), 'i', backendOk?'h':'f');
   log('WTP engine: India-specific scoring | Chain detector: ' + (skipChain?'ON':'OFF') + ' | Min WTP: ' + minWTP, 'i', 'd');
 
   for (const area of areas) {
@@ -857,7 +874,14 @@ async function startScrape() {
       log('Scraping: "' + query + '"', 'r');
       setProgress(done/total*100, cat + ' · ' + area);
 
-      let results = await fetchLeads(query);
+      let results = [];
+      try {
+        results = await fetchLeads(query);
+      } catch(e) {
+        log(e.message || 'Scrape failed', 'w');
+        stopped = true;
+        break;
+      }
 
       if (skipChain) {
         const before = results.length;
@@ -1052,8 +1076,14 @@ function updateWhatsAppLink() {
   const lead = findLeadByKey(selectedLeadKey);
   if (lead) lead.firstMessage = document.getElementById('outreach-message').value;
   const phone = normalizePhone(document.getElementById('outreach-phone').value);
-  const message = document.getElementById('outreach-message').value.trim();
-  const link = document.getElementById('wa-link');
+    const message = document.getElementById('outreach-message').value.trim();
+    const link = document.getElementById('wa-link');
+  if (lead?.simulated) {
+    link.href = '#';
+    link.classList.add('disabled');
+    link.textContent = 'Demo lead - no WhatsApp';
+    return;
+  }
   if (!phone || !message) {
     link.href = '#';
     link.classList.add('disabled');
@@ -1202,7 +1232,7 @@ async function testBackend() {
     } else throw new Error('Bad response');
   } catch(e) {
     backendOk = false;
-    el.textContent = '✗ Connection failed — using simulation';
+    el.textContent = '✗ Connection failed — real scraping unavailable';
     el.className = 'bb-status fail';
   }
 }
@@ -1281,6 +1311,7 @@ function collectSession() {
       sort: document.getElementById('f-sort')?.value || 'wtp',
       skipChain: document.getElementById('tog-chain')?.checked,
       dedup: document.getElementById('tog-dedup')?.checked,
+      demo: document.getElementById('tog-demo')?.checked,
       noWebFirst: document.getElementById('tog-noweb')?.checked,
       backendUrl
     }
@@ -1321,6 +1352,7 @@ function applySession(session) {
   if (document.getElementById('f-sort')) document.getElementById('f-sort').value = f.sort || 'wtp';
   if (typeof f.skipChain === 'boolean') document.getElementById('tog-chain').checked = f.skipChain;
   if (typeof f.dedup === 'boolean') document.getElementById('tog-dedup').checked = f.dedup;
+  if (typeof f.demo === 'boolean') document.getElementById('tog-demo').checked = f.demo;
   if (typeof f.noWebFirst === 'boolean') document.getElementById('tog-noweb').checked = f.noWebFirst;
   if (f.backendUrl) {
     backendUrl = f.backendUrl;
@@ -1354,6 +1386,7 @@ function clearSavedSession() {
 }
 
 function normalizeImportedLead(lead) {
+  const isDemoLead = lead.simulated || lead.source === 'simulation' || lead.Source === 'simulation' || lead.source === 'demo' || lead.Source === 'demo';
   const normalized = {
     name: lead.name || lead.Name || '',
     category: lead.category || lead.Category || '',
@@ -1361,10 +1394,10 @@ function normalizeImportedLead(lead) {
     rating: Number(lead.rating ?? lead.Rating ?? 0),
     reviews: Number(lead.reviews ?? lead.Reviews ?? 0),
     hasWebsite: String(lead.hasWebsite ?? lead['Has Website'] ?? 'No').toLowerCase().startsWith('y') || lead.hasWebsite === true,
-    phone: lead.phone || lead.Phone || '',
+    phone: isDemoLead ? '' : (lead.phone || lead.Phone || ''),
     address: lead.address || lead.Address || '',
-    source: lead.source || lead.Source || 'imported',
-    simulated: lead.simulated || false,
+    source: isDemoLead ? 'demo' : (lead.source || lead.Source || 'imported'),
+    simulated: !!isDemoLead,
     wtpScore: Number(lead.wtpScore ?? lead['WTP Score'] ?? 0),
     oppScore: Number(lead.oppScore ?? lead['Opp Score'] ?? lead.Opportunity ?? 0),
     tier: lead.tier || lead.Tier || 'COLD',
@@ -1465,7 +1498,7 @@ document.querySelectorAll('#cat-chips .chip').forEach(c => {
   c.addEventListener('click', () => { c.classList.toggle('on2'); saveSession(); });
 });
 
-['min-rev','min-rat','min-wtp','delay','price-tier','lead-search','f-tier','f-web','f-crm','f-sort','tog-chain','tog-dedup','tog-noweb'].forEach(id => {
+['min-rev','min-rat','min-wtp','delay','price-tier','lead-search','f-tier','f-web','f-crm','f-sort','tog-chain','tog-dedup','tog-demo','tog-noweb'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', saveSession);
   if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.addEventListener('input', saveSession);
@@ -1489,10 +1522,10 @@ async function autoConnect() {
       log('Playwright scraping is active — real Google Maps data', 'i', 'd');
     } else throw new Error();
   } catch(e) {
-    el.textContent = '◌ Backend starting up — using simulation for now';
+    el.textContent = '◌ No backend connected — real scraping unavailable';
     el.className = 'bb-status';
-    log('Backend not ready yet — using simulation mode', 'w');
-    log('Click TEST in the backend box to retry connection', 'i', 'd');
+    log('Backend not ready yet — no fake leads will be generated unless Demo mode is turned on', 'w');
+    log('Click TEST after adding a backend URL to retry real scraping', 'i', 'd');
   }
 }
 

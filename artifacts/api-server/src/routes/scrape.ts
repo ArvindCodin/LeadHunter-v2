@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { chromium } from "playwright";
+import { chromium, type Page } from "playwright";
 
 const scrapeRouter = Router();
 
@@ -34,7 +34,26 @@ interface ScrapedBusiness {
   hasWebsite: boolean;
   phone: string;
   address: string;
+  website?: string;
   source: string;
+}
+
+function cleanPhone(raw: string): string {
+  const match = raw.match(/(\+?\d[\d\s().-]{7,}\d)/);
+  return match ? match[1].replace(/\s+/g, " ").trim() : "";
+}
+
+async function firstText(page: Page, selectors: string[]): Promise<string> {
+  for (const selector of selectors) {
+    try {
+      const locator = page.locator(selector).first();
+      if ((await locator.count()) > 0) {
+        const text = (await locator.innerText({ timeout: 1200 })).trim();
+        if (text) return text;
+      }
+    } catch { /* try next selector */ }
+  }
+  return "";
 }
 
 async function scrapeMaps(query: string, maxResults: number): Promise<ScrapedBusiness[]> {
@@ -105,7 +124,9 @@ async function scrapeMaps(query: string, maxResults: number): Promise<ScrapedBus
         } catch { /* ok */ }
 
         // Website check — look for the "Website" button in the listing
-        const hasWebsite = !!(await item.$('[data-item-id="authority"]'));
+        let phone = "";
+        let website = "";
+        let hasWebsite = !!(await item.$('[data-item-id="authority"]'));
 
         // Try to detect sub-category from the DOM
         let detectedCategory = category;
@@ -127,6 +148,32 @@ async function scrapeMaps(query: string, maxResults: number): Promise<ScrapedBus
           if (addrEl) address = (await addrEl.innerText()).trim();
         } catch { /* keep default */ }
 
+        try {
+          await item.click({ timeout: 3000 });
+          await page.waitForTimeout(1200);
+
+          const phoneButton = page.locator('button[data-item-id^="phone:tel:"], button[aria-label^="Phone:"]').first();
+          if ((await phoneButton.count()) > 0) {
+            const itemId = (await phoneButton.getAttribute("data-item-id")) || "";
+            const aria = (await phoneButton.getAttribute("aria-label")) || "";
+            phone = cleanPhone(itemId.replace("phone:tel:", "")) || cleanPhone(aria);
+          }
+
+          const websiteLink = page.locator('a[data-item-id="authority"], a[aria-label^="Website:"]').first();
+          if ((await websiteLink.count()) > 0) {
+            website = (await websiteLink.getAttribute("href")) || "";
+            hasWebsite = true;
+          }
+
+          const detailAddress = await firstText(page, [
+            'button[data-item-id="address"]',
+            'button[aria-label^="Address:"]',
+          ]);
+          if (detailAddress) address = detailAddress.replace(/^Address:\s*/i, "").trim();
+        } catch {
+          // Keep list-card data if the detail panel is unavailable.
+        }
+
         results.push({
           name,
           category: detectedCategory,
@@ -134,8 +181,9 @@ async function scrapeMaps(query: string, maxResults: number): Promise<ScrapedBus
           rating,
           reviews,
           hasWebsite,
-          phone: "",
+          phone,
           address,
+          website,
           source: "playwright",
         });
       } catch {
